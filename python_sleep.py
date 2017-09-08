@@ -18,7 +18,6 @@ def minutes_in_stage(epochstage):
 
 #this function could calculate the proportion of the data
 def proportion_in_stage(epochstage):
-
 	temp = minutes_in_stage(epochstage)
 	total = temp['total_sleep_time']
 	return {'0': temp['0']/total, '1': temp['1']/total,'2': temp['2']/total, '3':temp['3']/total} 
