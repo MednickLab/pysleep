@@ -23,7 +23,7 @@ def proportion_in_stage(epochstage):
 
 def sleep_efficiency(epochstage):
 	temp = minutes_in_stage(epochstage)
-	return (temp['1']+temp['2']+temp['3'])/temp['total_sleep_time']
+	return (temp['total_sleep_time'] - temp['0'])/temp['total_sleep_time']
 #json_file='a.json' 
 json_file='CAPStudy_subjectid216_visit1.json'
 
