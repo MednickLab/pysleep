@@ -20,12 +20,51 @@ def test_sleep_fragmentation():
     assert (frag_out == 3)
 
 
-def test_trans_probs():
+def test_transition_counts():
     data = {'epochstage': [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]}
-    trans_out = transition_probabilities(data['epochstage'])
-    real_trans = {'trans_p_from_any_to_0': 0.27272727272727271,
-                  'trans_p_from_any_to_1': 0.18181818181818182,
-                  'trans_p_from_any_to_2': 0.36363636363636365,
-                  'trans_p_from_any_to_3': 0.090909090909090912,
-                  'trans_p_from_any_to_4': 0.090909090909090912}
-    assert(trans_out == real_trans)
+    zeroth, first, second = transition_counts(data['epochstage'])
+    real_zeroth = [3, 2, 4, 1, 1]
+    assert(np.all(zeroth == np.array(real_zeroth)))
+    real_first = [[0, 2, 2, 0, 0],
+                  [1, 0, 1, 0, 0],
+                  [2, 0, 0, 1, 1],
+                  [0, 0, 1, 0, 0],
+                  [0, 0, 0, 0, 0]]
+    assert (np.all(first == np.array(real_first)))
+    real_second = [[[2, 1, 1, 0, 0],
+                  [0, 1, 1, 0, 0],
+                  [1, 0, 0, 1, 0],
+                  [0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0]],
+
+                 [[1, 0, 0, 0, 0],
+                  [1, 1, 0, 0, 0],
+                  [0, 0, 0, 0, 1],
+                  [0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0]],
+
+                 [[0, 1, 1, 0, 0],
+                  [0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0],
+                  [0, 0, 1, 0, 0],
+                  [0, 0, 0, 0, 0]],
+
+                 [[0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0],
+                  [1, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0]],
+
+                 [[0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0]]]
+    assert (np.all(second == np.array(real_second)))
+
+
+def test_durration_dists():
+    data = {'epochstage': [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]}
+    dist_out = duration_distributions(data['epochstage'], 30)
+    real_dists = {0: [90, 90, 30, 30], 1: [90, 30], 2: [30, 30, 30, 30], 3: [30], 4: [30]}
+    assert(dist_out == real_dists)
