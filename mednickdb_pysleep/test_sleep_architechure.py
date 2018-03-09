@@ -1,17 +1,18 @@
-import json
-from sleep_architecture import *
-from sleep_fragmentation import *
+from mednickdb_pysleep.sleep_fragmentation import *
+from mednickdb_pysleep.sleep_architecture import *
 
 
 def test_sleep_arch():
     data = {'epochstage':[0, 0, 0, -1, -1,-1,1,1,1,2,2,2,3,3,3,4,4,4]}
-    data_out = minutes_in_stage(data['epochstage'])
-    correct_ans_minutes = {'minutes_in_0': 1.5, 'minutes_in_1': 1.5, 'minutes_in_2': 1.5, 'minutes_in_3': 1.5, 'minutes_in_4': 1.5, 'total_minutes': 7.5}
-    assert(data_out == correct_ans_minutes)
-    perc_out = percent_in_stage(correct_ans_minutes)
-    assert(perc_out == {'percent__0': 20.0, 'percent__1': 20.0, 'percent__2': 20.0, 'percent__3': 20.0, 'percent__4': 20.0})
-    sleep_ef_out = sleep_efficiency(correct_ans_minutes, wake_stage=0)
+    minutes_out, perc_out, total_mins = sleep_stage_architecture(data['epochstage'])
+    correct_ans_minutes = {0: 1.5, 1: 1.5, 2: 1.5, 3: 1.5, 4: 1.5}
+    assert(minutes_out == correct_ans_minutes)
+    assert(total_mins == 7.5)
+    assert(perc_out == {0: 20.0, 1: 20.0, 2: 20.0, 3: 20.0, 4: 20.0})
+    sleep_ef_out = sleep_efficiency(correct_ans_minutes, total_mins, wake_stage=0)
     assert(sleep_ef_out == 0.8)
+    tst = total_sleep_time(correct_ans_minutes, wake_stage=0)
+    assert(tst==6)
 
 
 def test_sleep_fragmentation():
