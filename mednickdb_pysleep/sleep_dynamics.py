@@ -3,14 +3,14 @@ import itertools
 from typing import Dict, Union
 
 
-def num_awakenings(epoch_stages, wake_stage=0):
+def num_awakenings(epoch_stages, waso_stage=0):
     """
     Count the number of transitions to wake
     :param epoch_stages: The pattern of sleep stages, ignoring duration (e.g. [ 0 1 2 1]
-    :param wake_stage: stage that represents wake, default 0
+    :param waso_stage: stage that represents wake, default 0
     :return: number of awakenings
     """
-    wake_only = np.where(np.array(epoch_stages) == wake_stage, 1, 0)
+    wake_only = np.where(np.array(epoch_stages) == waso_stage, 1, 0)
     return np.sum(np.diff(wake_only) == 1)
 
 

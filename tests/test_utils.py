@@ -1,4 +1,4 @@
-from mednickdb_pysleep.utils import convert_epochstages_to_eegevents
+from mednickdb_pysleep.utils import *
 
 
 def test_epochstage_to_eegevents():
@@ -7,3 +7,31 @@ def test_epochstage_to_eegevents():
     ans_cols = [[0, 1, 2, 3, 2, 1], [150, 180, 150, 150, 150, 120], [0, 150, 330, 480, 630, 780], [None]*6]
     for ret_col, ans in zip(eegevents.columns, ans_cols):
         assert all(eegevents[ret_col].values == ans), "Col "+ret_col+' does not match'
+
+
+def test_fill_unknown_stages():
+    epochstages = [0, 0, -1, 1, 2, -2, -3, 3, 2, 2, 2, 1, 1]
+    filled_epoch_stages = fill_unknown_stages(epochstages.copy(), fill_direction='forward')
+    forward_ans = [0, 0, 0, 1, 2, 2, 2, 3, 2, 2, 2, 1, 1]
+    assert len(forward_ans) == len(filled_epoch_stages)
+    assert all([f == a for f, a in zip(filled_epoch_stages, forward_ans)])
+
+    filled_epoch_stages = fill_unknown_stages(epochstages, fill_direction='backward')
+    back_ans = [0, 0, 1, 1, 2, 3, 3, 3, 2, 2, 2, 1, 1]
+    assert len(back_ans) == len(filled_epoch_stages)
+    assert all([f == a for f, a in zip(filled_epoch_stages, back_ans)])
+
+    epochstages = [-1, 0, -1, 1, 2, -2, -3, 3, 2, 2, 2, 1, -1]
+    filled_epoch_stages = fill_unknown_stages(epochstages.copy(), fill_direction='forward')
+    forward_ans = [0, 0, 1, 2, 2, 2, 3, 2, 2, 2, 1]
+    assert len(forward_ans) == len(filled_epoch_stages)
+    assert all([f == a for f, a in zip(filled_epoch_stages, forward_ans)])
+
+    filled_epoch_stages = fill_unknown_stages(epochstages, fill_direction='backward')
+    back_ans = [0, 1, 1, 2, 3, 3, 3, 2, 2, 2, 1]
+    assert len(back_ans) == len(filled_epoch_stages)
+    assert all([f == a for f, a in zip(filled_epoch_stages, back_ans)])
+
+    ret = fill_unknown_stages([0, 0, 1, 1, 2, 2, 3, 3, 2, 2], fill_direction='forward')
+    good = [0, 0, 1, 1, 2, 2, 3, 3, 2, 2]
+    assert all([f == a for f, a in zip(ret, good)])

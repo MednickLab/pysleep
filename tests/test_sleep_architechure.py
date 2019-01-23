@@ -70,7 +70,13 @@ def test_transition_counts():
 
 
 def test_duration_dists():
-    data = {'epochstage': [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]}
-    dist_out = duration_distributions(data['epochstage'], 30)
+    epoch_stage = [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]
+    dist_out = duration_distributions(epoch_stage, 30)
     real_dists = {0: [90, 90, 30, 30], 1: [90, 30], 2: [30, 30, 30, 30], 3: [30], 4: [30]}
     assert(dist_out == real_dists)
+
+
+def test_sleep_latency():
+    epoch_stage = [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]
+    latency = sleep_latency(epoch_stage)
+    assert latency == 1.5
