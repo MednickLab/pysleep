@@ -10,6 +10,10 @@ def mean_amplitude(sig):
     return np.nanmean(sig)
 
 
+def rms_power(sig):
+    return np.sqrt(np.mean(sig**2))
+
+
 def max_amplitude(sig):
     return np.nanmax(sig)
 

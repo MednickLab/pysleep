@@ -1,4 +1,4 @@
-from mednickdb_pysleep.sleep_fragmentation import *
+from mednickdb_pysleep.sleep_dynamics import *
 from mednickdb_pysleep.sleep_architecture import *
 
 
@@ -9,10 +9,10 @@ def test_sleep_arch():
     assert(minutes_out == correct_ans_minutes)
     assert(total_mins == 7.5)
     assert(perc_out == {0: 20.0, 1: 20.0, 2: 20.0, 3: 20.0, 4: 20.0})
-    sleep_ef_out = sleep_efficiency(correct_ans_minutes, total_mins, wake_stage=0)
+    sleep_ef_out = sleep_efficiency(correct_ans_minutes, total_mins, wake_stages=[0])
     assert(sleep_ef_out == 0.8)
-    tst = total_sleep_time(correct_ans_minutes, wake_stage=0)
-    assert(tst==6)
+    tst = total_sleep_time(correct_ans_minutes, wake_stages=[0])
+    assert(tst == 6)
 
 
 def test_sleep_fragmentation():
@@ -63,8 +63,13 @@ def test_transition_counts():
                   [0, 0, 0, 0, 0]]]
     assert (np.all(second == np.array(real_second)))
 
+    zeroth_norm, first_norm, second_norm = transition_counts(data['epochstage'], normalize=True)
+    assert np.sum(zeroth_norm) == 1
+    assert np.all(np.isnan(np.sum(first_norm, axis=1)) | (np.sum(first_norm, axis=1) == 1))
+    assert np.all(np.isnan(np.sum(second_norm, axis=2)) | (np.sum(second_norm, axis=2) == 1))
 
-def test_durration_dists():
+
+def test_duration_dists():
     data = {'epochstage': [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]}
     dist_out = duration_distributions(data['epochstage'], 30)
     real_dists = {0: [90, 90, 30, 30], 1: [90, 30], 2: [30, 30, 30, 30], 3: [30], 4: [30]}
