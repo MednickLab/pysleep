@@ -1,6 +1,6 @@
 import numpy as np
 import itertools
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 
 def num_awakenings(epoch_stages, waso_stage=0):
@@ -14,7 +14,7 @@ def num_awakenings(epoch_stages, waso_stage=0):
     return np.sum(np.diff(wake_only) == 1)
 
 
-def transition_counts(epoch_stages: list, count_self_trans: bool=False, normalize: bool=False): #first_order=False, second_order=False):
+def transition_counts(epoch_stages: list, count_self_trans: bool=False, normalize: bool=False, stages_to_consider=(0,1,2,3,4)): #first_order=False, second_order=False):
     """
     Get the number of transition from one stage to another
     :param epoch_stages: The pattern of sleep stages, will handle with and without duration e.g. [0 1 2 1]
@@ -26,19 +26,22 @@ def transition_counts(epoch_stages: list, count_self_trans: bool=False, normaliz
         e.g. for first order, dims = [current stage, next stage]
         e.g. for 2nd order, dims=[previous stage, current stage, next stage]
     """
-    stages = np.unique(epoch_stages)
-    index_map = {stage:idx for idx, stage in enumerate(stages)}
-    num_stages = len(stages)
+
+    num_stages = len(stages_to_consider)
     first = np.zeros((num_stages, num_stages))
     second = np.zeros((num_stages, num_stages, num_stages))
 
+    if len(epoch_stages) <= 3:
+        return None, None, None
+
     for a, b, c in zip(epoch_stages[:-2], epoch_stages[1:-1], epoch_stages[2:]):
-        first[a, b] = first[a, b]+1
-        second[a, b, c] = second[a, b, c]+1
+        first[a, b] += 1
+        second[a, b, c] += 1
+    first[b, c] += 1  # make sure to add the last one too :)
 
     first[epoch_stages[-2], epoch_stages[-1]] = first[epoch_stages[-2], epoch_stages[-1]] + 1
     if not count_self_trans:
-        for stage in stages:
+        for stage in stages_to_consider:
             first[stage, stage] = 0
     zeroth = np.sum(first, axis=0)
     if not normalize:
@@ -49,15 +52,18 @@ def transition_counts(epoch_stages: list, count_self_trans: bool=False, normaliz
                second.astype(int)/np.expand_dims(np.sum(second, axis=2), 2)
 
 
-def duration_distributions(epoch_stages: list, epoch_len: int=30) -> Dict[Union[int, str], list]:
+def bout_durations(epoch_stages: list, epoch_len: int=30, stages_to_consider=(0, 1, 2, 3, 4)) -> Dict[Union[str, int], List[float]]:
     """
     Convert an epoch stages array (which includes self transitions) to a set of durations
     :param epoch_stages: epoch_stages: The pattern of sleep stages, with self-transitions e.g. [0 0 1 1 1 2 2 2 1]
     :param epoch_len: the length in seconds of each epoch
+    :param stages_to_consider: which stages to calculate bout durations for
     :return: a dict, with one key per stage, and a list of durations for each bout of a stage
     """
-    dur_dists = {stage:[] for stage in np.unique(epoch_stages)}
+    dur_dists = {s: [] for s in np.unique(epoch_stages)}
+
     for stage, run in itertools.groupby(epoch_stages):
-        dur_dists[stage].append(sum(1 for _ in run)*epoch_len)
+        if stage in stages_to_consider:
+            dur_dists[stage].append(float(len([_ for _ in run]))*epoch_len/60)
     return dur_dists
 
