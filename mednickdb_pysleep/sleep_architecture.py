@@ -40,15 +40,23 @@ def total_sleep_time(mins_in_stage, wake_stages=(0,)):
     return np.nansum([counts for stage, counts in mins_in_stage.items() if stage not in wake_stages])
 
 
-def sleep_latency(epoch_stages, wake_stage=0, epoch_len=30):
+def sleep_latency(epoch_stages, wbso_stage=0, sleep_stages=(1,2,3,4), epoch_len=30):
     """
     Calculate the time of wake prior to sleep, i.e. sleep latency
     :param epoch_stages: the pattern of sleep stages with self transitions, e.g. [0 0 1 1 1 2 2 2 1]
-    :param wake_stage: stage that represents wake (as opposed to WASO)
+    :param wbso_stage: stage that represents Wake Before Sleep Onset (as opposed to WASO)
     :param epoch_len: length of an epoch in seconds (30s by default)
     :return: sleep latency in minutes
     """
-    wake_only = np.where(np.array(epoch_stages) == wake_stage, 1, 0)
+    wake_only = np.where(np.array(epoch_stages) == wbso_stage, 1, 0)
+    if len(wake_only) == 0:
+        return 0
+    sleep_only = np.where([e in sleep_stages for e in epoch_stages])[0]
+    if len(sleep_only) == 0:  #no sleep, therefore no onset
+        return None
+    wake_only[sleep_only[0]:] = 0
+    if not any(wake_only):
+        return 0
     first_trans_from_wake = list(np.diff(wake_only)).index(-1)+1
     return first_trans_from_wake*epoch_len/60
 

@@ -77,6 +77,14 @@ def test_duration_dists():
 
 
 def test_sleep_latency():
-    epoch_stage = [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]
-    latency = sleep_latency(epoch_stage)
+    epoch_stage = [0, 0, 0, 1, 1, 1, -1, -1, -1, 2, 0, 2, 3, 2, 1, 1, 2, 4]
+    latency = sleep_latency(epoch_stage, wbso_stage=0)
     assert latency == 1.5
+
+    epoch_stage = [0, 0, 0, 1, 1, 1, -1, -1, -1, 2, 0, 2, 3, 2, 1, 1, 2, 4]
+    latency = sleep_latency(epoch_stage, wbso_stage=-1)
+    assert latency == 0
+
+    epoch_stage = [1,1,1,1,1]
+    latency = sleep_latency(epoch_stage, wbso_stage=-1)
+    assert latency == 0
