@@ -71,8 +71,8 @@ def test_transition_counts():
 
 def test_duration_dists():
     epoch_stage = [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]
-    dist_out = duration_distributions(epoch_stage, 30)
-    real_dists = {0: [90, 90, 30, 30], 1: [90, 30], 2: [30, 30, 30, 30], 3: [30], 4: [30]}
+    dist_out = bout_durations(epoch_stage, 30)
+    real_dists = {0: [1.5, 1.5, 0.5, 0.5], 1: [1.5, 0.5], 2: [0.5, 0.5, 0.5, 0.5], 3: [0.5], 4: [0.5]}
     assert(dist_out == real_dists)
 
 
