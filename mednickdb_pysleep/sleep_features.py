@@ -1,6 +1,5 @@
 from wonambi import Dataset
 from wonambi.detect import DetectSpindle, DetectSlowWave
-import pandas as pd
 from typing import List, Tuple, Dict
 from .pysleep_utils import *
 from .pysleep_defaults import *

@@ -1,6 +1,7 @@
-from mednickdb_pysleep.sleep_features import *
-import os
+import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, file_dir + '/../mednickdb_pysleep')
+from mednickdb_pysleep.sleep_features import *
 import time
 import pytest
 import pickle
@@ -29,6 +30,7 @@ def test_so_detection():
 
 
 def test_density_and_mean_features_calculations():
+    #TODO should check actual spindle averages (assuming deterministic spindle algo)
     epochstages_file = file_dir + '/testfiles/example_epoch_stages.pkl'
     epoch_stages = pickle.load(open(epochstages_file, 'rb'))
     spindles = pd.read_csv(file_dir + '/testfiles/example_spindle_events.csv')
