@@ -3,7 +3,7 @@ from mednickdb_pysleep.sleep_architecture import *
 
 
 def test_sleep_arch():
-    data = {'epochstage':[0, 0, 0, -1, -1,-1,1,1,1,2,2,2,3,3,3,4,4,4]}
+    data = {'epochstage':[0, 0, 0, -1, -1, -1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]}
     minutes_out, perc_out, total_mins = sleep_stage_architecture(data['epochstage'])
     correct_ans_minutes = {0: 1.5, 1: 1.5, 2: 1.5, 3: 1.5, 4: 1.5}
     assert(minutes_out == correct_ans_minutes)
