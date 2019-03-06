@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
+import xarray as xr
 from itertools import groupby
+from scipy.io import savemat
+from typing import List
 
 
 def convert_epochstages_to_eegevents(epochstages: dict, epoch_len: int=30, start_offset: float=0):
@@ -34,7 +37,7 @@ def fill_unknown_stages(epoch_stages, stages_to_fill=(-1, -2, -3), fill_directio
     overwrite with next stage.
     :return: epoch_stages list with unknown stages filled
     """
-    #This algorithm got way out of hand, i tried to get fancy and have only one loop, but ended having to do a copy :(
+    # This algorithm got way out of hand, i tried to get fancy and have only one loop, but ended having to do a copy :(
     epoch_stages_ = epoch_stages.copy()
     start = 0
     end = len(epoch_stages_)
@@ -86,3 +89,39 @@ def overlap(start1: float, end1: float, start2: float, end2: float) -> float:
     Returns:
         overlap of intervals in same units as supplied."""
     return max(max((end2 - start1), 0) - max((end2 - end1), 0) - max((start2 - start1), 0), 0)
+
+
+def pd_to_xarray_datacube(df: pd.DataFrame, dim_cols: List[str], value_col: str):
+    """
+    Converts long format data to a datacube, where every dimention is a variable, and each element is one level/unit of that variable
+    :param df: dataframe to convert
+    :param dim_cols: column names of dataframe to use as datacube axis, in order (i.e. first col will be first dim)
+    :param value_col: column that represents the value
+    :return: xarray datacube
+    """
+
+    df = df.loc[:, dim_cols+[value_col]].set_index(dim_cols)
+    df = df.loc[:, value_col]
+    return df.to_xarray()
+
+
+def xarray_to_pd_dataframe(dc):
+    """
+    Converts xarray datacube to long format data dataframe
+    :param dc: datacube to convert to dataframe
+    :return: df: dataframe to convert
+    """
+    return dc.to_series().reset_index()
+
+
+def data_to_matfile(data, filename):
+    """
+    save a data (xarray or numpy or dataframe) to matfile
+    :param data: data (xarray or numpy or dataframe) to save
+    :param filename: name/path of matfile to save, make sure to add .mat extension
+    :return: None
+    """
+    if ~isinstance(data, np.ndarray):
+        data = data.values
+    savemat(filename, mdict={'dc': data})
+
