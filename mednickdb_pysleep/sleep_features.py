@@ -138,6 +138,7 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
                 if channels is None or chan in channels:
                     features_per_chan = feature_data_per_stage_chan.drop(non_var_cols, axis=1).mean()
                     features_per_chan['density'] = feature_data_per_stage_chan.shape[0]/mins_in_stage[stage]
+                    features_per_chan['count'] = feature_data_per_stage_chan.shape[0]
                     features_per_chan.index = ['av_'+col for col in features_per_chan.index]
                     features_per_chan['chan'] = chan
                     per_chan_cont.append(features_per_chan)
