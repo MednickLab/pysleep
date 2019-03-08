@@ -1,4 +1,4 @@
-from mednickdb_pysleep.utils import *
+from mednickdb_pysleep.pysleep_utils import *
 
 
 def test_epochstage_to_eegevents():

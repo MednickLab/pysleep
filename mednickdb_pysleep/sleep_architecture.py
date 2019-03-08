@@ -52,7 +52,7 @@ def sleep_latency(epoch_stages, wbso_stage=0, sleep_stages=(1,2,3,4), epoch_len=
     if len(wake_only) == 0:
         return 0
     sleep_only = np.where([e in sleep_stages for e in epoch_stages])[0]
-    if len(sleep_only) == 0:  #no sleep, therefore no onset
+    if len(sleep_only) == 0:  # no sleep, therefore no onset
         return None
     wake_only[sleep_only[0]:] = 0
     if not any(wake_only):
