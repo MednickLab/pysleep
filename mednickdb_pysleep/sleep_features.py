@@ -1,9 +1,9 @@
 from wonambi import Dataset
 from wonambi.detect import DetectSpindle, DetectSlowWave
 from typing import List, Tuple, Dict
-from .pysleep_utils import *
-from .pysleep_defaults import *
-from .sleep_architecture import sleep_stage_architecture
+from mednickdb_pysleep.pysleep_utils import *
+from mednickdb_pysleep.pysleep_defaults import *
+from mednickdb_pysleep.sleep_architecture import sleep_stage_architecture
 
 
 def detect_spindles(edf_filepath: str,
@@ -123,7 +123,8 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
     :param feature_events: dataframe of a single event type (spindle, slow osc, rem, etc)
     :param epoch_stages: epoch_stages list, the list of stages for each 30 second interval
     :param stages_to_consider: The stages to extract for, i.e. you probably want to leave out REM when doing spindles
-    :param channels: if None consider all channels.
+    :param channels: if None consider all channels THAT HAS DETECTED SPINDLES, to include 0 density and count for
+        channels that have no spindles, make sure to inlcude this channel list argument.
     :param av_across_channels: whether to average across channels, or return separate for each channel
     :return: dataframe of with len(stage)*len(chan) or len(stage) rows with density + mean of each feature as columns
     """
@@ -134,14 +135,19 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
     for stage, feature_data_per_stage in feature_events.groupby('stage'):
         if stage in stages_to_consider:
             per_chan_cont = []
+            channels_without_events = set(feature_data_per_stage['chan'].unique() if channels is None else channels)
             for chan, feature_data_per_stage_chan in feature_data_per_stage.groupby('chan'):
                 if channels is None or chan in channels:
+                    channels_without_events = channels_without_events - {chan}
                     features_per_chan = feature_data_per_stage_chan.drop(non_var_cols, axis=1).mean()
                     features_per_chan['density'] = feature_data_per_stage_chan.shape[0]/mins_in_stage[stage]
                     features_per_chan['count'] = feature_data_per_stage_chan.shape[0]
                     features_per_chan.index = ['av_'+col for col in features_per_chan.index]
                     features_per_chan['chan'] = chan
                     per_chan_cont.append(features_per_chan)
+            if len(channels_without_events) > 0: #if there were channels that didnt have any spindles
+                for chan in channels_without_events:
+                    per_chan_cont.append(pd.Series({'chan': chan, 'av_density': 0, 'av_count': 0}))
             if len(per_chan_cont) > 0:
                 features_per_stage = pd.concat(per_chan_cont, axis=1).T
                 if av_across_channels:
