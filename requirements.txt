@@ -35,3 +35,4 @@ win-inet-pton==1.0.1
 wincertstore==0.2
 xlrd==1.1.0
 zope.interface==4.4.3
+wonambi==5.64

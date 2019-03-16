@@ -47,9 +47,9 @@ def test_density_and_mean_features_calculations():
     assert features_per_chan.shape[0] == len(stages)*len(channels)
     assert set(features_per_chan['chan'].unique()) == set(channels)
 
-    #test if density is 0 for channels that dont have spindles
+    # test if density is 0 for channels that dont have spindles
     channels = np.append(channels, 'F9').tolist()
     features_per_chan = sleep_feature_variables_per_stage(spindle_events, epoch_stages, channels=channels,
                                                           av_across_channels=False, stages_to_consider=stages)
     assert set(features_per_chan['chan'].unique()) == set(channels)
-    assert all(0==features_per_chan.loc[features_per_chan['chan'] == 'F9', 'av_count'])
+    assert all(0 == features_per_chan.loc[features_per_chan['chan'] == 'F9', 'av_count'])
