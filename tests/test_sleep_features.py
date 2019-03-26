@@ -1,10 +1,12 @@
 import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, file_dir + '/../mednickdb_pysleep')
-from mednickdb_pysleep.sleep_features import *
+from sleep_features import detect_spindles, detect_slow_oscillation, assign_stage_to_feature_events, sleep_feature_variables_per_stage
 import time
 import pytest
 import pickle
+import numpy as np
+import pandas as pd
 
 
 def test_spindle_detection():
@@ -39,8 +41,15 @@ def test_density_and_mean_features_calculations():
     stages = ['stage2', 'sws']
     features = sleep_feature_variables_per_stage(spindle_events, epoch_stages, stages_to_consider=stages)
     assert features.shape[0] == len(stages)
-    expected_cols = ['av_density'] + ['av_' + col for col in spindle_events.columns]+list(spindle_events.columns)
+    expected_cols = ['av_density', 'av_count'] + ['av_' + col for col in spindle_events.columns]+list(spindle_events.columns)
     assert all([col in expected_cols for col in features.columns])
     features_per_chan = sleep_feature_variables_per_stage(spindle_events, epoch_stages, av_across_channels=False, stages_to_consider=stages)
     assert features_per_chan.shape[0] == len(stages)*len(channels)
     assert set(features_per_chan['chan'].unique()) == set(channels)
+
+    # test if density is 0 for channels that dont have spindles
+    channels = np.append(channels, 'F9').tolist()
+    features_per_chan = sleep_feature_variables_per_stage(spindle_events, epoch_stages, channels=channels,
+                                                          av_across_channels=False, stages_to_consider=stages)
+    assert set(features_per_chan['chan'].unique()) == set(channels)
+    assert all(0 == features_per_chan.loc[features_per_chan['chan'] == 'F9', 'av_count'])
