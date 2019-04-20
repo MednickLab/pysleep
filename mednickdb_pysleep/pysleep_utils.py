@@ -3,11 +3,12 @@ import pandas as pd
 from itertools import groupby
 from scipy.io import savemat
 from typing import List
+from mednickdb_pysleep import pysleep_defaults
 
 
-def convert_epochstages_to_eegevents(epochstages: dict, epoch_len: int=30, start_offset: float=0):
+def convert_epochstages_to_eegevents(epochstages: List[str], epoch_len: int=pysleep_defaults.epoch_len, start_offset: float=0):
     """
-    converts stages formated as epochstages type i.e. [1 1 1 1 1 2 2 2 2 3 3 3 3]
+    converts stages formated as epochstages type i.e. [1 1 1 1 1 2 2 2 2 3 3 3 3] or ['stage1', 'stage1', ...]
     to eegevents type, with a onset column, duration column, and description column, and channel column
     :param epochstages: A list or np.darray of stages for each epoch
     :param epoch_len: the length of each epoch in seconds
@@ -27,7 +28,7 @@ def convert_epochstages_to_eegevents(epochstages: dict, epoch_len: int=30, start
     return eegevents
 
 
-def fill_unknown_stages(epoch_stages, stages_to_fill=(-1, -2, -3), fill_direction='forward'):
+def fill_unknown_stages(epoch_stages, stages_to_fill=pysleep_defaults.non_sleep_or_wake_stages, fill_direction='forward'):
     """
     fill the unknown stages with the previous or the next stage, remove unknown stages at start or end of record
     :param epoch_stages: A list or np.darray of stages for each epoch either with or without self transitions

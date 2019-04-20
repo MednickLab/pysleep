@@ -1,7 +1,7 @@
 import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, file_dir + '/../mednickdb_pysleep')
-from sleep_features import detect_spindles, detect_slow_oscillation, assign_stage_to_feature_events, sleep_feature_variables_per_stage
+from sleep_features import detect_spindles, detect_slow_oscillation, assign_stage_to_feature_events, sleep_feature_variables_per_stage, detect_rems
 import time
 import pytest
 import pickle
@@ -31,6 +31,15 @@ def test_so_detection():
     pytest.slow_oscillations = slow_oscillations
 
 
+# def test_rem_detection():
+#     edf = file_dir + '/testfiles/example2_sleep_rec.edf'
+#     epochstages_file = file_dir + '/testfiles/example2_epoch_stages.pkl'
+#     epoch_stages = pickle.load(open(epochstages_file, 'rb'))
+#     rem_locs_df = detect_rems(edf, 'Left Eye-A2', 'Right Eye-A1', epoch_stages)
+#     assert rem_locs_df is not None
+#     assert rem_locs_df.shape[0] > 0
+
+
 def test_density_and_mean_features_calculations():
     #TODO should check actual spindle averages (assuming deterministic spindle algo)
     epochstages_file = file_dir + '/testfiles/example_epoch_stages.pkl'
@@ -38,7 +47,7 @@ def test_density_and_mean_features_calculations():
     spindles = pd.read_csv(file_dir + '/testfiles/example_spindle_events.csv')
     spindle_events = assign_stage_to_feature_events(spindles, epoch_stages)
     channels = spindle_events['chan'].unique()
-    stages = ['stage2', 'sws']
+    stages = ['n2', 'n3']
     features = sleep_feature_variables_per_stage(spindle_events, epoch_stages, stages_to_consider=stages)
     assert features.shape[0] == len(stages)
     expected_cols = ['av_density', 'av_count'] + ['av_' + col for col in spindle_events.columns]+list(spindle_events.columns)

@@ -1,9 +1,14 @@
 from wonambi import Dataset
 from wonambi.detect import DetectSpindle, DetectSlowWave
-from typing import List, Tuple, Dict
-from mednickdb_pysleep.pysleep_utils import *
-from mednickdb_pysleep.pysleep_defaults import *
+from mednickdb_pysleep import pysleep_utils
+from mednickdb_pysleep import pysleep_defaults
 from mednickdb_pysleep.sleep_architecture import sleep_stage_architecture
+from typing import List, Tuple, Dict
+import pandas as pd
+
+if pysleep_defaults.load_matlab_detectors:
+    import yetton_rem_detector
+    rem_detector = yetton_rem_detector.initialize()
 
 
 def detect_spindles(edf_filepath: str,
@@ -71,8 +76,8 @@ def detect_slow_oscillation(edf_filepath: str,
     col_map = {'start': 'onset',
                'end': None,
                'trough_time': 'trough_time',
-               'zero_time':'zero_time',
-               'peak_time':'peak_time',
+               'zero_time': 'zero_time',
+               'peak_time': 'peak_time',
                'trough_val': 'trough_val',
                'peak_val': 'peak_val',
                'dur': 'duration',
@@ -89,6 +94,31 @@ def detect_slow_oscillation(edf_filepath: str,
     return sos_df.sort_values('onset')
 
 
+def detect_rems(edf_filepath: str,
+                loc_chan: str,
+                roc_chan: str,
+                epochstages: List[str],
+                rem_stage_to_consider: str=pysleep_defaults.rem_stage,
+                algo: str='HatzilabrouEtAl'):
+    """
+    Detect rapid eye movement events in an edf file from loc and roc channels (only REM stage considered). Sample Freq must be converted to 256Hz!
+    :param edf_filepath: path of edf file to load. Will maybe work with other filetypes. untested.
+    :param algo: which algorithm to use to detect spindles. See wonambi methods: https://wonambi-python.github.io/gui/methods.html
+    :param chans_to_consider: which channels to detect spindles on, must match edf channel names
+    :param start_time: time of edf to begin detection
+    :param end_time: time of edf to end detection
+    :return: returns dataframe of spindle locations, with columns for chan, start, duration and other spindle properties, sorted by onscdet
+    """
+    all_stage_start_and_ends = pysleep_utils.convert_epochstages_to_eegevents(epochstages)
+    rem_start_and_ends = all_stage_start_and_ends.loc[all_stage_start_and_ends['description'] == rem_stage_to_consider, :]
+    rem_starts = (rem_start_and_ends['onset']*256).tolist() #must be in samples, must be 256Hz.
+    rem_ends = ((rem_start_and_ends['onset'] + rem_start_and_ends['duration'])*256).tolist()
+    onsets, _, _, _, _ = rem_detector.runDetectorCommandLine(edf_filepath, [rem_starts, rem_ends], algo, loc_chan, roc_chan)
+    rem_df = pd.DataFrame({'onsets': onsets})
+    rem_df['description'] = 'rem_event'
+    rem_df['eventtype'] = 'sleep_feature'
+
+
 def assign_stage_to_feature_events(feature_events: pd.DataFrame, epochstages: list) -> pd.DataFrame:
     """
     :param feature_events: events dataframe, with start and duration columns
@@ -96,7 +126,7 @@ def assign_stage_to_feature_events(feature_events: pd.DataFrame, epochstages: li
     :return: the modified events df, with a stage column
     """
     if isinstance(epochstages, list):
-        stage_events = convert_epochstages_to_eegevents(epochstages)
+        stage_events = pysleep_utils.convert_epochstages_to_eegevents(epochstages)
     elif isinstance(epochstages, pd.DataFrame):
         stage_events = epochstages
     else:
@@ -105,9 +135,9 @@ def assign_stage_to_feature_events(feature_events: pd.DataFrame, epochstages: li
     def check_overlap(start, duration, stage_events):
         end = start + duration
         for idx, stage in stage_events.iterrows():
-            if overlap(start, end, stage['onset'], stage['onset']+stage['duration']):
+            if pysleep_utils.overlap(start, end, stage['onset'], stage['onset']+stage['duration']):
                 return stage['description']
-        return unknown_stage
+        return pysleep_defaults.unknown_stage
 
     feature_events['stage'] = feature_events.apply(lambda x: check_overlap(x['onset'], x['duration'], stage_events), axis=1)
     return feature_events
@@ -115,7 +145,7 @@ def assign_stage_to_feature_events(feature_events: pd.DataFrame, epochstages: li
 
 def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
                                       epoch_stages: list,
-                                      stages_to_consider: List[str]=stages_to_consider,
+                                      stages_to_consider: List[str]=pysleep_defaults.stages_to_consider,
                                       channels: List[str]=None,
                                       av_across_channels: bool=True):
     """

@@ -2,7 +2,9 @@ import numpy as np
 from mednickdb_pysleep import pysleep_defaults
 
 
-def sleep_stage_architecture(epoch_stage, epoch_len=30, stages_to_consider=(0, 1, 2, 3, 4)):
+def sleep_stage_architecture(epoch_stage,
+                             epoch_len=pysleep_defaults.epoch_len,
+                             stages_to_consider=pysleep_defaults.stages_to_consider):
     """
     Calculate the traditional measures of sleep (mins in stage, percent in stage, total minutes of sleep (total sleep time))
     :param epoch_stage: the pattern of sleep stages with self transitions, e.g. [0 0 1 1 1 2 2 2 1]
@@ -20,7 +22,7 @@ def sleep_stage_architecture(epoch_stage, epoch_len=30, stages_to_consider=(0, 1
     return mins_in_stage, percent_in_stage, total_minutes
 
 
-def sleep_efficiency(mins_in_stage, total_minutes, wake_stages=(0,)):
+def sleep_efficiency(mins_in_stage, total_minutes, wake_stages=pysleep_defaults.wake_stages_to_consider):
     """
     Standard measure of sleep efficiency: (total_minutes-wake minutes)/total minutes
     :param mins_in_stage: minutes in each stage, as a dict or list (if list, wake stage must be index)
@@ -31,7 +33,7 @@ def sleep_efficiency(mins_in_stage, total_minutes, wake_stages=(0,)):
     return (total_minutes - np.sum([mins_in_stage[s] for s in wake_stages]))/total_minutes
 
 
-def total_sleep_time(mins_in_stage, wake_stages=(0,)):
+def total_sleep_time(mins_in_stage, wake_stages=pysleep_defaults.wake_stages_to_consider):
     """
     Total sleep time, the total time sleeping in stages that are not wake
     :param mins_in_stage: mins_in_stage: minutes in each stage, as a dict or list (if list, wake stage must be index)
@@ -88,7 +90,7 @@ def lights_on_off_and_sleep_latency(epoch_stages,
     sleep_latency = sleep_start - lights_off if (sleep_start is not None) else None
 
     return lights_off * epoch_len / 60 + epoch_sync_offset/60, \
-            lights_on * epoch_len / 60 + epoch_sync_offset/60, \
-            sleep_latency * epoch_len / 60 + epoch_sync_offset/60
+      lights_on * epoch_len / 60 + epoch_sync_offset/60, \
+      sleep_latency * epoch_len / 60 + epoch_sync_offset/60
 
 

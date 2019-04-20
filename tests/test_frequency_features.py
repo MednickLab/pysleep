@@ -1,9 +1,9 @@
 import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, file_dir + '/../mednickdb_pysleep')
-from mednickdb_pysleep.frequency_features import *
-from mednickdb_pysleep.pysleep_defaults import sleep_stages
-from mednickdb_pysleep.pysleep_utils import pd_to_xarray_datacube
+sys.path.insert(0, file_dir + '/../mednickdb_pysleep/')
+from frequency_features import extract_band_power_per_stage, extract_band_power_per_epoch
+from pysleep_defaults import sleep_stages
+from pysleep_utils import pd_to_xarray_datacube
 import pytest
 import pickle
 
