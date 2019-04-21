@@ -7,7 +7,7 @@ import numpy as np
 import scipy.interpolate
 import datetime
 from mednickdb_pyparse.pyparse_utils import hume_matfile_loader, mat_datenum_to_py_datetime
-from mednickdb_pysleep.pysleep_defaults import epoch_len, unknown_stage
+from mednickdb_pysleep import pysleep_defaults
 
 
 def extract_epochstages_from_scorefile(file, stagemap):
@@ -43,14 +43,18 @@ def extract_epochstages_from_scorefile(file, stagemap):
         raise ValueError('ScoreFile not able to be parsed.')
 
     #Do stagemap
-    epochstages = [stagemap[str(x)] if str(x) in stagemap else unknown_stage for x in epochdict['epochstages']]
-    if all([stage == unknown_stage for stage in epochdict['epochstages']]):
+    epochstages = [stagemap[str(x)] if str(x) in stagemap else pysleep_defaults.unknown_stage for x in epochdict['epochstages']]
+    if all([stage == pysleep_defaults.unknown_stage for stage in epochdict['epochstages']]):
         raise ValueError('All stages are unknown, this is probably an error, maybe the stagemap was not found. Make sure the study name is correct.')
 
     return epochstages, epochdict['starttime'] if 'starttime' in epochdict else 0
 
 
-def score_wake_as_waso_wbso_wase(epochstages, wake_base, waso, wbso, wase, sleep_stages):
+def score_wake_as_waso_wbso_wase(epochstages, wake_base='wake',
+                                 waso=pysleep_defaults.waso_stage,
+                                 wbso=pysleep_defaults.wbso_stage,
+                                 wase=pysleep_defaults.wase_stage,
+                                 sleep_stages=pysleep_defaults.sleep_stages):
     """
     Convert all the wake before sleep onset to wbso, all the after the last epoch of sleep to wase, and the rest to waso
     :param epochstages: epoch stages

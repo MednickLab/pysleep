@@ -1,7 +1,7 @@
 import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, file_dir + '/../mednickdb_pysleep')
-from pysleep_utils import *
+from pysleep_utils import convert_epochstages_to_eegevents, fill_unknown_stages
 
 
 def test_epochstage_to_eegevents():
