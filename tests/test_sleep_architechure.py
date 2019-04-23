@@ -1,8 +1,9 @@
 import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, file_dir + '/../mednickdb_pysleep')
-from sleep_dynamics import *
-from sleep_architecture import *
+from sleep_dynamics import transition_counts, bout_durations, num_awakenings
+from sleep_architecture import sleep_stage_architecture, sleep_efficiency, total_sleep_time, lights_on_off_and_sleep_latency
+import numpy as np
 
 
 def test_sleep_arch():

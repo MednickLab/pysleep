@@ -20,9 +20,24 @@ all_stages = non_sleep_or_wake_stages + sleep_stages
 wake_stages_to_consider = [waso_stage]
 stages_to_consider = wake_stages_to_consider + sleep_stages
 
+#%% Sleep feature defaults:
+default_freq_bands = {
+    'SWA_band_hz': (0.5, 1),
+    'delta_band_hz': (1, 4),
+    'theta_band_hz': (4, 8),
+    'alpha_band_hz': (8, 12),
+    'sigma_band_hz': (11, 16),
+    'slow_sigma_band_hz': (11, 13),  # TODO whats the best fast/slow bands?
+    'fast_sigma_band_hz': (13, 16),
+    'beta_band_hz': (16, 20)
+}
+
 
 # %% transition probability
 include_self_transitions = False
 
 # %% Turn or of off matlab detector functionality
 load_matlab_detectors = False
+
+
+# Quartile ->

@@ -10,9 +10,6 @@ datetime==4.2
 idna==2.6
 kiwisolver==1.0.1
 matplotlib==2.2.0
-mednickdb-pyapi==0.1
-mednickdb-pyparse==0.1
-mednickdb-pysleep==0.1.dev0
 mne==0.15.2
 numpy==1.14.1
 pandas==0.22.0

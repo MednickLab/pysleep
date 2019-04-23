@@ -5,8 +5,8 @@ import math
 import xml.etree.ElementTree as ET
 import numpy as np
 import scipy.interpolate
-import datetime
-from mednickdb_pyparse.pyparse_utils import hume_matfile_loader, mat_datenum_to_py_datetime
+from scipy.io import loadmat
+from datetime import datetime, timedelta
 from mednickdb_pysleep import pysleep_defaults
 
 
@@ -82,10 +82,11 @@ def score_wake_as_waso_wbso_wase(epochstages, wake_base='wake',
     return epochstages.tolist()
 
 
-def _hume_parse(file):
+def _hume_parse(file, epoch_len=pysleep_defaults.epoch_len):
     """
     Parse HUME type matlab file
     :param file: file to parse
+    :param epoch_len: length of an epoch in seconds
     :return: dict with epochstage, epochoffset, starttime keys
     """
     hume_dict = hume_matfile_loader(file)
@@ -137,7 +138,7 @@ def _read_edf_annotations(fname, annotation_format="edf/edf+"):
     return good_annot
 
 
-def _resample_to_new_epoch_len(annot, new_epoch_len=30):
+def _resample_to_new_epoch_len(annot, new_epoch_len=pysleep_defaults.epoch_len):
     """
     Some scorefiles have 20 second epochs, this will resample to some other length (30 generally).
     :param annot: a dataframe with onset, duration and description columns.
@@ -158,7 +159,7 @@ def _resample_to_new_epoch_len(annot, new_epoch_len=30):
     return pd.DataFrame({'onset': list(window_onsets), 'description': window_stages, 'duration': durations})
 
 
-def _parse_edf_scorefile(path, stage_map_dict):
+def _parse_edf_scorefile(path, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
     """
     Load edf file extract relevant meta data including epoch stages.
     :param path: file to parse
@@ -172,7 +173,7 @@ def _parse_edf_scorefile(path, stage_map_dict):
         EDF_file = mne.io.read_raw_edf(path, stim_channel='auto', preload=True, verbose=False)
         raw_annot = mne.io.find_edf_events(EDF_file)
         annot = pd.DataFrame(raw_annot, columns=['onset', 'duration', 'description'])
-        dictObj['starttime'] = datetime.datetime.fromtimestamp(EDF_file.info['meas_date'])
+        dictObj['starttime'] = datetime.fromtimestamp(EDF_file.info['meas_date'])
     except TypeError: #type2
         # need to do try and except because edf++ uses different reading style
         annot = _read_edf_annotations(path)
@@ -216,7 +217,7 @@ def _xml_repeater(node):
     return temp
 
 
-def _nsrr_xml_parse(file, stage_map_dict):
+def _nsrr_xml_parse(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
     """
     Parsing for NSRR formated xml scorefiles
     :param file: file object to parse
@@ -255,7 +256,7 @@ def _nsrr_xml_parse(file, stage_map_dict):
     return_dict = {}
     return_dict['epochstages'] = list(annot_resampled['description'].values)
     return_dict['epochoffset'] = list(annot_resampled['onset'].values)
-    return_dict['starttime'] = datetime.datetime.strptime(dict_xml['ClockTime'][0].split(' ')[-1], '%H.%M.%S')
+    return_dict['starttime'] = datetime.strptime(dict_xml['ClockTime'][0].split(' ')[-1], '%H.%M.%S')
 
     return return_dict
 
@@ -288,7 +289,7 @@ def _txtfile_select_parser_function(file):
         raise ValueError('txt ScoreFile not able to be parsed.')
 
 
-def _parse_basic_txt_scorefile(file):
+def _parse_basic_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     """
     Parse the super basic sleep files from Dinklmann
     No starttime is available.
@@ -329,7 +330,7 @@ def _parse_lat_type_txt_scorefile(file):
     return dict_obj
 
 
-def _parse_full_type_txt_scorefile(file):
+def _parse_full_type_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     """
     Parse full type txt file. Example: CAPStudy, maybe other phsyionet stuff...
     :param file:
@@ -373,11 +374,11 @@ def _parse_full_type_txt_scorefile(file):
             date = full_line[1]
             print(date)
 
-    dict_obj['starttime'] = datetime.datetime.strptime(date + ' ' + starttime, '%d/%m/%Y %H.%M.%S')
+    dict_obj['starttime'] = datetime.strptime(date + ' ' + starttime, '%d/%m/%Y %H.%M.%S')
     return dict_obj
 
 
-def _parse_grass_scorefile(file):
+def _parse_grass_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     """
     Parse the grass type scorefile
     :param file:
@@ -398,7 +399,7 @@ def _parse_grass_scorefile(file):
         if date is not None and time is not None:
             break
 
-    dict_dict_out['starttime'] = datetime.datetime.strptime(date + ' ' + time, '%m/%d/%y %H:%M:%S')
+    dict_dict_out['starttime'] = datetime.strptime(date + ' ' + time, '%m/%d/%y %H:%M:%S')
 
     epoch = 0
     for i in graph_data.iterrows():
@@ -410,3 +411,42 @@ def _parse_grass_scorefile(file):
             break
 
     return dict_dict_out
+
+def hume_matfile_loader(matfile_path):
+    """
+    Loads a hume matlab .mat file which contains a struct, and writes fields and values to a dictionary
+    :param matfile_path: path of matlab file to load
+    :return: dict of matlab information
+    """
+    mat_struct = loadmat(matfile_path)
+
+    # build a list of keys and values for each entry in the structure
+    if 'stageData' in mat_struct:
+        vals = mat_struct['stageData'][0, 0]
+        keys = mat_struct['stageData'][0, 0].dtype.descr
+    elif 'mrk' in mat_struct:
+        mat_dict = {'stages':mat_struct['mrk'][:, 0]}
+        return mat_dict
+
+    # Assemble the keys and values into variables with the same name as that used in MATLAB
+    mat_dict = {}
+    for i in range(len(keys)):
+        key = keys[i][0]
+        if len(vals[key].shape) > 1 and vals[key].shape[0] > vals[key].shape[1]:
+            vals[key] = vals[key].T
+        if len(vals[key][0]) > 1:
+            val = np.squeeze(vals[key][0])
+        else:
+            val = np.squeeze(vals[key][0][0])  # squeeze is used to covert matlat (1,n) arrays into numpy (1,) arrays.
+        mat_dict[key] = val
+
+    return mat_dict
+
+
+def mat_datenum_to_py_datetime(mat_datenum):
+    """
+    Converts a matlab "datenum" type to a python datetime type
+    :param mat_datenum: matlab datenum to conver
+    :return: converted datetime
+    """
+    return datetime.fromordinal(int(mat_datenum)) + timedelta(days=mat_datenum % 1) - timedelta(days=366)

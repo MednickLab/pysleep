@@ -2,16 +2,16 @@ from wonambi import Dataset
 from wonambi.trans import math, timefrequency
 from typing import List, Tuple, Dict, Union
 import numpy as np
-from mednickdb_pysleep.pysleep_defaults import epoch_len
+from mednickdb_pysleep import pysleep_defaults
 import pandas as pd
 
 
 def extract_band_power_per_epoch(edf_filepath: str,
-                                 bands: dict = None,
+                                 bands: dict = pysleep_defaults.default_freq_bands,
                                  chans_to_consider: List[str]=None,
                                  start_time: float=None,
                                  end_time: float=None,
-                                 epoch_len: int=epoch_len) -> Tuple[np.ndarray, dict, List[str]]:
+                                 epoch_len: int = pysleep_defaults.epoch_len) -> Tuple[np.ndarray, dict, List[str]]:
     """
 
     :param edf_filepath: The edf to extract bandpower for
@@ -30,16 +30,7 @@ def extract_band_power_per_epoch(edf_filepath: str,
     :param end_time: end time of the recording to extract band power for
     :return: chan_epoch_band as a numpy array, and bands
     """
-    if bands is None:
-        bands = {
-            'delta': (1, 4),
-            'theta': (4, 7),
-            'alpha': (8, 10),
-            'sigma': (11, 16),
-            'slow_sigma': (11, 13),  # TODO whats the best fast/slow bands?
-            'fast_sigma': (13, 16),
-            'beta': (16, 20)
-        }
+
     d = Dataset(edf_filepath)
     data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
     power = timefrequency(data, method='spectrogram')
