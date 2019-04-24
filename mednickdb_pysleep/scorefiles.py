@@ -170,7 +170,7 @@ def _parse_edf_scorefile(path, stage_map_dict, epoch_len=pysleep_defaults.epoch_
     dictObj = {"epochstages": [], "epochoffset": []}
 
     try: #type1
-        EDF_file = mne.io.read_raw_edf(path, stim_channel='auto', preload=True, verbose=False)
+        EDF_file = mne.io.read_raw_edf(path, stim_channel=False, preload=True, verbose=False)
         raw_annot = mne.io.find_edf_events(EDF_file)
         annot = pd.DataFrame(raw_annot, columns=['onset', 'duration', 'description'])
         dictObj['starttime'] = datetime.fromtimestamp(EDF_file.info['meas_date'])
