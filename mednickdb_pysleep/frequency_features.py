@@ -2,7 +2,7 @@ from wonambi import Dataset
 from wonambi.trans import math, timefrequency
 from typing import List, Tuple, Dict, Union
 import numpy as np
-from .pysleep_defaults import epoch_len
+from mednickdb_pysleep.pysleep_defaults import epoch_len
 import pandas as pd
 
 
