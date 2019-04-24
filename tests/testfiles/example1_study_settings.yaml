@@ -1,0 +1,17 @@
+known_eeg_chans:
+  C3-A2: C3
+  C4-A1: C4
+known_eog_chans:
+  Left Eye-A2: LOC
+  Right Eye-A1: ROC
+known_emg_chans:
+  Chin1-Chin2: chin
+known_ecg_chans:
+ref_type: contra_mastoid
+stage_map:
+  Sleep stage W: wake
+  Sleep stage 1: n1
+  Sleep stage 2: n2
+  Sleep stage 3: n3
+  Sleep stage R: rem
+  Sleep stage ?: unknown
