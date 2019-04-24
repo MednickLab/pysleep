@@ -1,6 +1,6 @@
 import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, file_dir + '/../mednickdb_pysleep')
+sys.path.insert(0, file_dir + '/../mednickdb_pysleep/')
 from sleep_features import detect_spindles, detect_slow_oscillation, assign_stage_to_feature_events, sleep_feature_variables_per_stage, detect_rems
 import time
 import pytest

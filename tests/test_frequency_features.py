@@ -11,7 +11,7 @@ import pickle
 def test_extract_band_power_per_epoch():
     edf_filename = 'testfiles/example_sleep_rec.edf'
     band_power_per_epoch, bands, chans = extract_band_power_per_epoch(edf_filepath=edf_filename)
-    assert band_power_per_epoch.shape == (2, 1229, 7)
+    assert band_power_per_epoch.shape == (2, 1229, 8)
     pytest.band_power_per_epoch = band_power_per_epoch
     pytest.bands = bands
     pytest.chans = chans
@@ -40,7 +40,7 @@ def test_extract_band_power_per_stage():
                                                         ch_names=pytest.chans,
                                                         )
 
-    assert band_power_per_stage.shape[0] == 2*7*len(sleep_stages)
+    assert band_power_per_stage.shape[0] == 2*8*len(sleep_stages)
 
     dc = pd_to_xarray_datacube(band_power_per_stage, dim_cols=['stage', 'chan', 'band'], value_col='power')
-    assert dc.shape == (4, 2, 7)
+    assert dc.shape == (4, 2, 8)
