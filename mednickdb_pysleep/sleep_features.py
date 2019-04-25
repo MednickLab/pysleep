@@ -12,7 +12,7 @@ if pysleep_defaults.load_matlab_detectors:
 
 
 def detect_spindles(edf_filepath: str,
-                    algo: str='Lacourse2018',
+                    algo: str='Ferrarelli2007',
                     chans_to_consider: List[str]=None,
                     start_time: float=None,
                     end_time: float=None)->pd.DataFrame:
