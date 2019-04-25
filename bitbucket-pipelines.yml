@@ -17,3 +17,17 @@ pipelines:
           - docker build -t pysleep .
           # authenticate with the Docker Hub registry
           - docker run pysleep 
+    - step:
+        name: update pyparse on dockerhub
+        services:
+          - docker
+        caches:
+          - docker
+        script:
+          - if $UPDATE_DOCKERHUB ; then echo "update dockerhub"
+          - apt-get -qq update && apt-get -qq install -y git
+          - export IMAGE_NAME=mednickdb/pyparse:latest
+          - docker build -t $IMAGE_NAME https://bitbucket.org/mednicklab/mednickdb_pyparse.git
+          - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+          - docker push $IMAGE_NAME
+          - else echo "No dockerhub update in this repository"
