@@ -9,9 +9,6 @@ __pycache__/
 .idea/
 .gitignore
 
-*.mat
-*.csv
-
 # C extensions
 *.so
 
