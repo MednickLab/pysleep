@@ -8,6 +8,7 @@ __pycache__/
 .cache/
 .idea/
 .gitignore
+.pytest_cache/
 
 # C extensions
 *.so
