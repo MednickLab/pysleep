@@ -30,4 +30,4 @@ pipelines:
           - docker build -t $IMAGE_NAME https://bitbucket.org/mednicklab/mednickdb_pyparse.git
           - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
           - docker push $IMAGE_NAME
-          - else echo "No dockerhub update in this repository"
+          - else echo "No dockerhub update in this repository" ; fi
