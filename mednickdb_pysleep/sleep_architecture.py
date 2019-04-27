@@ -89,8 +89,10 @@ def lights_on_off_and_sleep_latency(epoch_stages,
 
     sleep_latency = sleep_start - lights_off if (sleep_start is not None) else None
 
-    return lights_off * epoch_len / 60 + epoch_sync_offset/60, \
-      lights_on * epoch_len / 60 + epoch_sync_offset/60, \
-      sleep_latency * epoch_len / 60 + epoch_sync_offset/60
+    lights_off_scaled = None if lights_off is None else lights_off * epoch_len / 60 + epoch_sync_offset/60
+    lights_on_scaled = None if lights_on is None else lights_on * epoch_len / 60 + epoch_sync_offset/60
+    sleep_latency_scaled = None if sleep_latency is None else sleep_latency * epoch_len / 60 + epoch_sync_offset/60
+
+    return lights_off_scaled, lights_on_scaled, sleep_latency_scaled
 
 
