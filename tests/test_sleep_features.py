@@ -71,3 +71,5 @@ def test_density_and_mean_features_calculations():
                                                           av_across_channels=False, stages_to_consider=stages)
     assert set(features_per_chan['chan'].unique()) == set(channels)
     assert all(0 == features_per_chan.loc[features_per_chan['chan'] == 'F9', 'av_count'])
+
+    os.remove(os.path.join(file_dir, 'testfiles/example1_spindle_events.csv'))
