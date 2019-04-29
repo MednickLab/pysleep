@@ -24,12 +24,14 @@ pytest-dependency==0.3.2
 python-crontab==2.2.8
 python-dateutil==2.6.1
 pytz==2018.3
+PyYAML==5.1
 requests==2.18.4
 scipy==1.0.0
 six==1.11.0
 urllib3==1.22
 win-inet-pton==1.0.1
 wincertstore==0.2
+xarray==0.12.1
 xlrd==1.1.0
 zope.interface==4.4.3
 wonambi==5.64
