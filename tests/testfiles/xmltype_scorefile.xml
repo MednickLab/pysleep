@@ -1,0 +1,1637 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PSGAnnotation>
+<SoftwareVersion>Compumedics</SoftwareVersion>
+<EpochLength>30</EpochLength>
+<ScoredEvents>
+<ScoredEvent>
+<EventType/>
+<EventConcept>Recording Start Time</EventConcept>
+<Start>0</Start>
+<Duration>41220.0</Duration>
+<ClockTime>00.00.00 20.33.32</ClockTime>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>17.3</Start>
+<Duration>39.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>232</Start>
+<Duration>6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>264.6</Start>
+<Duration>177.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>469.8</Start>
+<Duration>237.5</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>727.6</Start>
+<Duration>21.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>956.4</Start>
+<Duration>64.2</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>1176.4</Start>
+<Duration>71.2</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>1295</Start>
+<Duration>39.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>1426</Start>
+<Duration>74.2</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>1548.4</Start>
+<Duration>88.5</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>1740.5</Start>
+<Duration>196.4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>1956.7</Start>
+<Duration>85.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2083.6</Start>
+<Duration>53.5</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2147</Start>
+<Duration>62.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2221.9</Start>
+<Duration>28.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2253.5</Start>
+<Duration>30.8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2340.5</Start>
+<Duration>72.2</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2436.6</Start>
+<Duration>48.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2557.7</Start>
+<Duration>56</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2809.1</Start>
+<Duration>68.7</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>2921.2</Start>
+<Duration>114.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>3054.4</Start>
+<Duration>73.7</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>3163.5</Start>
+<Duration>29.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>3390.5</Start>
+<Duration>29.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>3807.9</Start>
+<Duration>30.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>3949.1</Start>
+<Duration>30.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>4059</Start>
+<Duration>4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>4129.5</Start>
+<Duration>49.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>4348</Start>
+<Duration>63.9</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>4533.1</Start>
+<Duration>42.4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>4796.9</Start>
+<Duration>45.7</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>5059.3</Start>
+<Duration>38.9</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>5793</Start>
+<Duration>538</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>7697.1</Start>
+<Duration>87.3</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>9464</Start>
+<Duration>44.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>9537</Start>
+<Duration>36.4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>9623.3</Start>
+<Duration>29.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>10409</Start>
+<Duration>15.9</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>10563.6</Start>
+<Duration>11.2</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>10605.3</Start>
+<Duration>14.6</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>13669.7</Start>
+<Duration>17.2</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>13671.8</Start>
+<Duration>32.8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>13944</Start>
+<Duration>5</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>15360.2</Start>
+<Duration>10.1</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>16332.8</Start>
+<Duration>7.6</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>18133.4</Start>
+<Duration>27.8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>18135.9</Start>
+<Duration>14.5</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>18220.3</Start>
+<Duration>19.6</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>18268</Start>
+<Duration>7</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>18343.1</Start>
+<Duration>7.5</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>18375.7</Start>
+<Duration>7.1</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>18802</Start>
+<Duration>9.1</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>18924</Start>
+<Duration>6.8</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>20049.3</Start>
+<Duration>15.8</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>20925.5</Start>
+<Duration>17.5</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>21578.3</Start>
+<Duration>21.6</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>21589.2</Start>
+<Duration>24.8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>21648.1</Start>
+<Duration>23.8</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>21748.6</Start>
+<Duration>20.5</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>21754.7</Start>
+<Duration>26.4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>22281.2</Start>
+<Duration>5.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>22384.6</Start>
+<Duration>17.8</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>22508.8</Start>
+<Duration>8.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>22541.1</Start>
+<Duration>22.3</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>22581.8</Start>
+<Duration>9.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>23376.6</Start>
+<Duration>20.3</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>23536.5</Start>
+<Duration>7.7</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>23605.3</Start>
+<Duration>6.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>23881.1</Start>
+<Duration>10.9</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>23884.8</Start>
+<Duration>21.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>24253.6</Start>
+<Duration>4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>24411.1</Start>
+<Duration>23.7</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>24416.3</Start>
+<Duration>30.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>24453</Start>
+<Duration>5</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>26077.6</Start>
+<Duration>80.4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>26088.5</Start>
+<Duration>6.8</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>26529.9</Start>
+<Duration>10.3</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>26642.4</Start>
+<Duration>5.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>26664.1</Start>
+<Duration>7.6</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>26673.9</Start>
+<Duration>462.8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>26706.3</Start>
+<Duration>3.6</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>26880.1</Start>
+<Duration>4.7</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>27044</Start>
+<Duration>4.3</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>27089</Start>
+<Duration>6</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>27159.8</Start>
+<Duration>20</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>27161</Start>
+<Duration>18</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>27504.9</Start>
+<Duration>8.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>28070</Start>
+<Duration>25.1</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>28116.4</Start>
+<Duration>25.6</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>28193.1</Start>
+<Duration>19.5</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>28203</Start>
+<Duration>8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>28344.8</Start>
+<Duration>3.9</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>28491.2</Start>
+<Duration>28.1</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>28595.1</Start>
+<Duration>7.1</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>28787.9</Start>
+<Duration>24.8</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>28818</Start>
+<Duration>5.6</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>28835.3</Start>
+<Duration>5.5</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>28860.5</Start>
+<Duration>24</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>28872</Start>
+<Duration>14</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>29776.9</Start>
+<Duration>4.2</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>30946</Start>
+<Duration>4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>31967.5</Start>
+<Duration>18.1</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>31975.8</Start>
+<Duration>16.5</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>32161.2</Start>
+<Duration>14.8</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>32172</Start>
+<Duration>10</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>32575.7</Start>
+<Duration>15.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>32661.1</Start>
+<Duration>18.3</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>32831.6</Start>
+<Duration>8.7</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>32869</Start>
+<Duration>25.9</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>32875</Start>
+<Duration>31.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>33090.8</Start>
+<Duration>20.5</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>33139</Start>
+<Duration>10.8</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>33155</Start>
+<Duration>12</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>33456</Start>
+<Duration>4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>33465.5</Start>
+<Duration>21.3</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 desaturation|SpO2 desaturation</EventConcept>
+<Start>33480</Start>
+<Duration>14</Duration>
+<SignalLocation>SpO2</SignalLocation>
+<SpO2Nadir>95</SpO2Nadir>
+<SpO2Baseline>98.0</SpO2Baseline>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>34322.4</Start>
+<Duration>12.3</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>34327.6</Start>
+<Duration>16.8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>34443.7</Start>
+<Duration>26.1</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>34448</Start>
+<Duration>28.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>35146.7</Start>
+<Duration>5.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>35221</Start>
+<Duration>28.7</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>35228.9</Start>
+<Duration>25.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>35749.6</Start>
+<Duration>17.3</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>36023.5</Start>
+<Duration>20.3</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Central apnea|Central Apnea</EventConcept>
+<Start>36119.1</Start>
+<Duration>10.8</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>36156.2</Start>
+<Duration>18.6</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>37135</Start>
+<Duration>3.3</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>37224</Start>
+<Duration>30.6</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>37230.3</Start>
+<Duration>20.3</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>37373.9</Start>
+<Duration>9.1</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>37500.3</Start>
+<Duration>29.2</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>37515.3</Start>
+<Duration>30.1</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>37638.7</Start>
+<Duration>73</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>38137.6</Start>
+<Duration>22.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>38235.8</Start>
+<Duration>21.8</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>38366.2</Start>
+<Duration>33.8</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>38665</Start>
+<Duration>4</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>38714.1</Start>
+<Duration>14.7</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>38716.3</Start>
+<Duration>24.8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>38836.8</Start>
+<Duration>28.1</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>38841</Start>
+<Duration>45.3</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>39527.1</Start>
+<Duration>12.9</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>39665.5</Start>
+<Duration>10.2</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>39853.2</Start>
+<Duration>14</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>40503</Start>
+<Duration>26.8</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>40612.5</Start>
+<Duration>22.4</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>40654</Start>
+<Duration>19.5</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>Hypopnea|Hypopnea</EventConcept>
+<Start>40824</Start>
+<Duration>21.1</Duration>
+<SignalLocation>AIRFLOW</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Arousals|Arousals</EventType>
+<EventConcept>ASDA arousal|Arousal (ASDA)</EventConcept>
+<Start>41154.2</Start>
+<Duration>20.2</Duration>
+<SignalLocation>C3</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Respiratory|Respiratory</EventType>
+<EventConcept>SpO2 artifact|SpO2 artifact</EventConcept>
+<Start>41161.9</Start>
+<Duration>81.8</Duration>
+<SignalLocation>SpO2</SignalLocation>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>0.0</Start>
+<Duration>10020.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>10020.0</Start>
+<Duration>90.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>10110.0</Start>
+<Duration>300.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>10410.0</Start>
+<Duration>90.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>10500.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>10530.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>10590.0</Start>
+<Duration>420.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>11010.0</Start>
+<Duration>90.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>11100.0</Start>
+<Duration>360.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>11460.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>11490.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>11520.0</Start>
+<Duration>2190.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>13710.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>13740.0</Start>
+<Duration>240.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>13980.0</Start>
+<Duration>600.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>14580.0</Start>
+<Duration>90.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>14670.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>14700.0</Start>
+<Duration>300.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>15000.0</Start>
+<Duration>720.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>15720.0</Start>
+<Duration>2490.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>18210.0</Start>
+<Duration>90.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>18300.0</Start>
+<Duration>1140.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>19440.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>19470.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>19500.0</Start>
+<Duration>540.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>20040.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>20070.0</Start>
+<Duration>90.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>20160.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>20220.0</Start>
+<Duration>690.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>20910.0</Start>
+<Duration>660.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>21570.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>21600.0</Start>
+<Duration>150.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>21750.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>21780.0</Start>
+<Duration>2370.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>24150.0</Start>
+<Duration>270.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>24420.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>24450.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>24510.0</Start>
+<Duration>1110.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>25620.0</Start>
+<Duration>90.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>25710.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>25740.0</Start>
+<Duration>330.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>26070.0</Start>
+<Duration>1080.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>27150.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>27180.0</Start>
+<Duration>540.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>27720.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>27750.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>27780.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>27810.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>27840.0</Start>
+<Duration>750.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>28590.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>28650.0</Start>
+<Duration>210.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>28860.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>28890.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>28920.0</Start>
+<Duration>1350.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>30270.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>30300.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 3 sleep|3</EventConcept>
+<Start>30330.0</Start>
+<Duration>1650.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>31980.0</Start>
+<Duration>180.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>32160.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>32190.0</Start>
+<Duration>270.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>32460.0</Start>
+<Duration>390.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>32850.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>32880.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>32910.0</Start>
+<Duration>150.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>33060.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>33090.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>33150.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>33210.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>33270.0</Start>
+<Duration>1170.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>34440.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>34470.0</Start>
+<Duration>750.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>35220.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>35250.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>35280.0</Start>
+<Duration>120.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>35400.0</Start>
+<Duration>1830.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>37230.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>37260.0</Start>
+<Duration>240.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>37500.0</Start>
+<Duration>570.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>38070.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>38130.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>38160.0</Start>
+<Duration>210.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>38370.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>38400.0</Start>
+<Duration>150.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>38550.0</Start>
+<Duration>300.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>38850.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>38910.0</Start>
+<Duration>90.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>39000.0</Start>
+<Duration>1500.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>40500.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>40530.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>REM sleep|5</EventConcept>
+<Start>40560.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>40620.0</Start>
+<Duration>30.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 1 sleep|1</EventConcept>
+<Start>40650.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Stage 2 sleep|2</EventConcept>
+<Start>40710.0</Start>
+<Duration>450.0</Duration>
+</ScoredEvent>
+<ScoredEvent>
+<EventType>Stages|Stages</EventType>
+<EventConcept>Wake|0</EventConcept>
+<Start>41160.0</Start>
+<Duration>60.0</Duration>
+</ScoredEvent>
+</ScoredEvents>
+</PSGAnnotation>

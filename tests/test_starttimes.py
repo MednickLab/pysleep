@@ -1,4 +1,3 @@
-import mne
 import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, file_dir + '/../mednickdb_pysleep')

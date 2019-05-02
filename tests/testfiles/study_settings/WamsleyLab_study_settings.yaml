@@ -1,0 +1,17 @@
+known_eeg_chans:
+known_eog_chans:
+known_emg_chans:
+known_ecg_chans:
+ref_type:
+#sleep stages
+stage_map:
+  Sleep stage W: wake
+  Sleep stage 1: n1
+  Sleep stage 2: n2
+  Sleep stage 3: n3
+  Sleep stage R: rem
+  Sleep stage ?: unknown
+#Extraction settings
+chans_for_band_power:
+chans_for_spindles:
+chans_for_slow_oscillations:

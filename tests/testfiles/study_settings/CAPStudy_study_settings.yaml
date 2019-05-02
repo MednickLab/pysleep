@@ -1,0 +1,19 @@
+known_eeg_chans:
+  C4-A1: C4
+known_eog_chans:
+known_emg_chans:
+known_ecg_chans:
+ref_type: contra_mastoid
+#sleep stages
+stage_map:
+  W: wake
+  S1: n1
+  S2: n2
+  S3: n3
+  S4: n3
+  REM: rem
+  R: rem
+#Extraction settings
+chans_for_band_power: [C3]
+chans_for_spindles: [C3]
+chans_for_slow_oscillations: [C3]

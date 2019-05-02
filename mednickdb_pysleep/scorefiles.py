@@ -1,5 +1,4 @@
 import pandas as pd
-import mne
 import re
 import math
 import xml.etree.ElementTree as ET
@@ -7,8 +6,8 @@ import numpy as np
 import scipy.interpolate
 from scipy.io import loadmat
 from datetime import datetime, timedelta
-import time
 from mednickdb_pysleep import pysleep_defaults, pysleep_utils
+import wonambi.ioeeg.edf as wnbi
 
 
 def extract_epochstages_from_scorefile(file, stagemap):
@@ -112,8 +111,8 @@ def _hume_parse(file, epoch_len=pysleep_defaults.epoch_len):
 
 def _read_edf_annotations(fname, annotation_format="edf/edf+"):
     """
-    Read EDF files, some of which that mne cannot handle natively.
-    # CODE PROVIDED BY MNE TO READ KEMP FILES
+    Read EDF file annotations.
+    # CODE PROVIDED BY M N E TO READ KEMP FILES
     :param fname: Path to file.
     :param annotation_format: one of ['edf/edf+', 'edf++']
     :return: annotations to be converted to epochstage format
@@ -175,15 +174,13 @@ def _parse_edf_scorefile(path, stage_map_dict, epoch_len=pysleep_defaults.epoch_
 
     dictObj = {}
 
+    edf = wnbi.Edf(path)
+    dictObj['starttime'] = edf.hdr['start_time']
+
     try: #type1
-        EDF_file = mne.io.read_raw_edf(path, stim_channel=False, preload=True, verbose=False)
-        dictObj['starttime'] = pysleep_utils.utc_epochnum_to_local_datetime(EDF_file.info['meas_date'][0])
-        annot = _read_edf_annotations(path)
-    except TypeError: #type2
-        # need to do try and except because edf++ uses different reading style
         annot = _read_edf_annotations(path)
     except ValueError: #type3
-        annot = _read_edf_annotations(path, annotation_format="edf++")
+        annot = _read_edf_annotations(path, annotation_format="edf++") #FIXME how to get edf++ ..?
 
     assert annot.shape[0] > 0, "no sleep stage annotations found, this is probably an error"
 

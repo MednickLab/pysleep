@@ -5,9 +5,7 @@ from scipy.io import savemat
 from typing import List
 from mednickdb_pysleep import pysleep_defaults
 import os
-import mne
-from datetime import datetime
-import time
+import yaml
 module_path = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -129,28 +127,3 @@ def data_to_matfile(data, filename):
     if ~isinstance(data, np.ndarray):
         data = data.values
     savemat(filename, mdict={'dc': data})
-
-
-def get_stagemap_by_name(stagemap_name):
-    """
-    Gets the map from for converting a scorefile's stages to the standard format used by the db. File is grabbed from stagemaps/ dir.
-    :param stagemap_name: name of the stagemap to load, one of {'hume', 'xml', 'grass'} or the name of a studyid
-    :raises: FileNotFoundError if file was not found
-    """
-    stagemap = pd.read_excel(module_path+'/stagemaps/' + stagemap_name + '_stagemap.xlsx',
-                             converters={'mapsfrom': str, 'mapsto': str})
-    stage_map = {k: v for k, v in zip(stagemap['mapsfrom'], stagemap['mapsto'])}
-    return stage_map
-
-
-def write_mne_raw_array_to_edf(filename: str, raw_array: mne.io.RawArray):
-    raise NotImplementedError('See mednickdb_pyparse for this functionality')
-
-
-def utc_epochnum_to_local_datetime(epochnum):
-    """Converts a "seconds since epoch" in utc (i.e. that returned by MNE) to a local datetime (like polyman)"""
-    utc = datetime.utcfromtimestamp(epochnum)
-    epoch = time.mktime(utc.timetuple())
-    offset = datetime.fromtimestamp(epoch) - datetime.utcfromtimestamp(epoch)
-    print('UTC', utc, utc + offset, epochnum)
-    return utc + offset
