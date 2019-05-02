@@ -6,6 +6,8 @@ from typing import List
 from mednickdb_pysleep import pysleep_defaults
 import os
 import mne
+from datetime import datetime
+import time
 module_path = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -142,4 +144,13 @@ def get_stagemap_by_name(stagemap_name):
 
 
 def write_mne_raw_array_to_edf(filename: str, raw_array: mne.io.RawArray):
-    pass
+    raise NotImplementedError('See mednickdb_pyparse for this functionality')
+
+
+def utc_epochnum_to_local_datetime(epochnum):
+    """Converts a "seconds since epoch" in utc (i.e. that returned by MNE) to a local datetime (like polyman)"""
+    utc = datetime.utcfromtimestamp(epochnum)
+    epoch = time.mktime(utc.timetuple())
+    offset = datetime.fromtimestamp(epoch) - datetime.utcfromtimestamp(epoch)
+    print('UTC', utc, utc + offset, epochnum)
+    return utc + offset

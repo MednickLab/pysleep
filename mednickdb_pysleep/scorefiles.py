@@ -7,7 +7,8 @@ import numpy as np
 import scipy.interpolate
 from scipy.io import loadmat
 from datetime import datetime, timedelta
-from mednickdb_pysleep import pysleep_defaults
+import time
+from mednickdb_pysleep import pysleep_defaults, pysleep_utils
 
 
 def extract_epochstages_from_scorefile(file, stagemap):
@@ -47,7 +48,7 @@ def extract_epochstages_from_scorefile(file, stagemap):
     if all([stage == pysleep_defaults.unknown_stage for stage in epochdict['epochstages']]):
         raise ValueError('All stages are unknown, this is probably an error, maybe the stagemap was not found. Make sure the study name is correct.')
 
-    return epochstages, epochdict['starttime'] if 'starttime' in epochdict else 0
+    return epochstages, epochdict['epochoffset'], epochdict['starttime'] if 'starttime' in epochdict else None
 
 
 def score_wake_as_waso_wbso_wase(epochstages, wake_base='wake',
@@ -89,17 +90,22 @@ def _hume_parse(file, epoch_len=pysleep_defaults.epoch_len):
     :param epoch_len: length of an epoch in seconds
     :return: dict with epochstage, epochoffset, starttime keys
     """
-    hume_dict = hume_matfile_loader(file)
-    if 'stageTime' in hume_dict:
-        epoch_offset = hume_dict['stageTime'] * hume_dict['win'] * 2 #TODO why is this 2?
-        starttime = mat_datenum_to_py_datetime(hume_dict['lightsOFF'])
-    else:
-        epoch_offset = np.arange(0, len(hume_dict['stages']))*epoch_len
-        starttime = None
 
-    dict_obj = {"epochstages": hume_dict['stages'],
-                "epochoffset": epoch_offset,
-                "starttime": starttime} #TODO deal with hume timing issues
+    hume_dict = hume_matfile_loader(file)
+
+    dict_obj = {"epochstages": hume_dict['stages'], 'epochoffset':0}
+
+    if 'win' in hume_dict:
+        assert epoch_len == hume_dict['win'], "Hume epoch_len is different to requested epoch_len TODO convert."
+
+    if 'recStart' in hume_dict:
+        dict_obj['starttime'] = mat_datenum_to_py_datetime(hume_dict['recStart'])
+
+    if 'lightsOFF' in hume_dict:
+        dict_obj['epochoffset'] = (mat_datenum_to_py_datetime(hume_dict['lightsOFF']) - mat_datenum_to_py_datetime(hume_dict['recStart'])).seconds
+
+    if 'stageTime' in hume_dict:
+        dict_obj['epochoffset'] += hume_dict['win'] * hume_dict['stageTime'][0]
 
     return dict_obj
 
@@ -167,25 +173,26 @@ def _parse_edf_scorefile(path, stage_map_dict, epoch_len=pysleep_defaults.epoch_
     :return:
     """
 
-    dictObj = {"epochstages": [], "epochoffset": []}
+    dictObj = {}
 
     try: #type1
         EDF_file = mne.io.read_raw_edf(path, stim_channel=False, preload=True, verbose=False)
-        raw_annot = mne.io.find_edf_events(EDF_file)
-        annot = pd.DataFrame(raw_annot, columns=['onset', 'duration', 'description'])
-        dictObj['starttime'] = datetime.fromtimestamp(EDF_file.info['meas_date'])
+        dictObj['starttime'] = pysleep_utils.utc_epochnum_to_local_datetime(EDF_file.info['meas_date'][0])
+        annot = _read_edf_annotations(path)
     except TypeError: #type2
         # need to do try and except because edf++ uses different reading style
         annot = _read_edf_annotations(path)
     except ValueError: #type3
         annot = _read_edf_annotations(path, annotation_format="edf++")
 
+    assert annot.shape[0] > 0, "no sleep stage annotations found, this is probably an error"
+
     valid_stages = annot['description'].isin(stage_map_dict.keys())
     annot = annot.loc[valid_stages, :]
 
     annot = _resample_to_new_epoch_len(annot, epoch_len)
     dictObj['epochstages'] = list(annot['description'].values)
-    dictObj['epochoffset'] = list(annot['onset'].values)
+    dictObj['epochoffset'] = annot['onset'].values[0]
 
     return dictObj
 
@@ -255,7 +262,7 @@ def _nsrr_xml_parse(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
 
     return_dict = {}
     return_dict['epochstages'] = list(annot_resampled['description'].values)
-    return_dict['epochoffset'] = list(annot_resampled['onset'].values)
+    return_dict['epochoffset'] = annot_resampled['onset'].values[0]
     return_dict['starttime'] = datetime.strptime(dict_xml['ClockTime'][0].split(' ')[-1], '%H.%M.%S')
 
     return return_dict
@@ -296,15 +303,12 @@ def _parse_basic_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     :param file:
     :return:
     """
-    dict_obj = {"epochstages": [], "epochoffset": []}
-    time = 0
+    dict_obj = {"epochstages": [], "epochoffset": 0}
     for line in file:
         temp = line.split(' ')
         temp = temp[0].split('\t')
         temp[0] = temp[0].strip('\n')
         dict_obj["epochstages"].append(temp[0])
-        dict_obj["epochoffset"].append(time)
-        time = time + epoch_len
     return dict_obj
 
 
@@ -316,8 +320,9 @@ def _parse_lat_type_txt_scorefile(file):
     :param file:
     :return:
     """
-    dict_obj = {"epochstages": [], "epochoffset": []}
+    dict_obj = {"epochstages": [], "epochoffset": 0}
     file.readline()  # done so that we can ignore the first line which just contain variable names
+    times = []
     for line in file:
         temp = line.split('  ')
         if len(temp) == 1:
@@ -326,7 +331,8 @@ def _parse_lat_type_txt_scorefile(file):
         dict_obj["epochstages"].append(temp[-1].lstrip(" ").rstrip(" "))
         time = temp[0]
         time = int(time)
-        dict_obj["epochoffset"].append(time)
+        times.append(time)
+    dict_obj["epochoffset"] = times[0]
     return dict_obj
 
 
@@ -337,7 +343,7 @@ def _parse_full_type_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     :return:
     """
     # Type 2
-    dict_obj = {"epochstages": [], "epochoffset": []}
+    dict_obj = {"epochstages": [], "epochoffset": 0}
     # find line with SleepStage
     # find position of SleepStage and Time
     start_split = False
@@ -345,7 +351,6 @@ def _parse_full_type_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     sleep_stage_pos = 0
     time_pos = 0
     event_pos = 0
-    offset_ticker = 0
 
     for line in file:
         if start_split and line.strip() != '':
@@ -355,8 +360,6 @@ def _parse_full_type_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
                 get_starttime = False
             if len(full_line) > event_pos and full_line[event_pos].find("MCAP") == -1:
                 dict_obj["epochstages"].append(full_line[sleep_stage_pos])
-                dict_obj["epochoffset"].append(offset_ticker)
-                offset_ticker = epoch_len + offset_ticker
 
         if line.find("Sleep Stage") != -1:
             start_split = True
@@ -384,7 +387,7 @@ def _parse_grass_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     :param file:
     :return:
     """
-    dict_dict_out = {"epochoffset": [], 'epochstages': []}
+    dict_obj = {"epochoffset": 0, 'epochstages': []}
 
     list_data = pd.read_excel(file, sheetname="list")
     graph_data = pd.read_excel(file, sheetname="GraphData")
@@ -399,18 +402,16 @@ def _parse_grass_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
         if date is not None and time is not None:
             break
 
-    dict_dict_out['starttime'] = datetime.strptime(date + ' ' + time, '%m/%d/%y %H:%M:%S')
+    dict_obj['starttime'] = datetime.strptime(date + ' ' + time, '%m/%d/%y %H:%M:%S')
 
-    epoch = 0
     for i in graph_data.iterrows():
         if not (math.isnan(i[1][1])):
-            dict_dict_out['epochstages'].append(int(i[1][1]))
-            dict_dict_out['epochoffset'].append(epoch)
-            epoch += epoch_len
+            dict_obj['epochstages'].append(int(i[1][1]))
         else:
             break
 
-    return dict_dict_out
+    return dict_obj
+
 
 def hume_matfile_loader(matfile_path):
     """
@@ -449,4 +450,4 @@ def mat_datenum_to_py_datetime(mat_datenum):
     :param mat_datenum: matlab datenum to conver
     :return: converted datetime
     """
-    return datetime.fromordinal(int(mat_datenum)) + timedelta(days=mat_datenum % 1) - timedelta(days=366)
+    return datetime.fromordinal(int(mat_datenum)) + timedelta(days=float(mat_datenum) % 1) - timedelta(days=366)
