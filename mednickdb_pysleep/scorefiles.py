@@ -254,6 +254,7 @@ def _nsrr_xml_parse(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
             temp_dict['onset'].append(float(dict_xml['Start'][i]))
     annot = pd.DataFrame(temp_dict)
     valid_stages = annot['description'].isin(stage_map_dict.keys())
+    assert valid_stages.any(), "No valid stages, are you sure the stage map in study settings is correct?"
     annot = annot.loc[valid_stages, :]
     annot_resampled = _resample_to_new_epoch_len(annot, epoch_len)
 
