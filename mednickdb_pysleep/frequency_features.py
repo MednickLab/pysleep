@@ -4,6 +4,7 @@ from typing import List, Tuple, Dict, Union
 import numpy as np
 from mednickdb_pysleep import pysleep_defaults
 import pandas as pd
+import warnings
 
 
 def extract_band_power_per_epoch(edf_filepath: str,
@@ -86,7 +87,9 @@ def extract_band_power_per_stage(chan_epoch_band_data: np.ndarray,
     power_cont = []
     for stage in stages_to_consider:
         epochs_of_stage = (epochstages == stage).nonzero()[0]
-        per_stage_data = chan_epoch_band_data[:, epochs_of_stage, :].mean(axis=1)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            per_stage_data = chan_epoch_band_data[:, epochs_of_stage, :].mean(axis=1)
         if return_format == 'dict':
             power_per_stage_dict[stage] = per_stage_data
         else:
