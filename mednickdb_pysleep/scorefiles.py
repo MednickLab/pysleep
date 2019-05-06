@@ -386,8 +386,8 @@ def _parse_grass_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     """
     dict_obj = {"epochoffset": 0, 'epochstages': []}
 
-    list_data = pd.read_excel(file, sheetname="list")
-    graph_data = pd.read_excel(file, sheetname="GraphData")
+    list_data = pd.read_excel(file, sheet_name="list")
+    graph_data = pd.read_excel(file, sheet_name="GraphData")
 
     time = None
     date = None

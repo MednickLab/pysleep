@@ -2,6 +2,7 @@ import numpy as np
 import itertools
 from typing import Dict, Union, List
 from mednickdb_pysleep import pysleep_defaults
+import warnings
 
 
 def num_awakenings(epoch_stages, waso_stage=pysleep_defaults.waso_stage):
@@ -50,12 +51,15 @@ def transition_counts(epoch_stages: list,
         for stage in stages_to_consider:
             first[stage_rev_map[stage], stage_rev_map[stage]] = 0
     zeroth = np.sum(first, axis=0)
-    if not normalize:
-        return zeroth.astype(int), first.astype(int), second.astype(int)
-    else:
-        return zeroth.astype(int)/np.sum(zeroth), \
-               first.astype(int)/np.expand_dims(np.sum(first, axis=1), 1), \
-               second.astype(int)/np.expand_dims(np.sum(second, axis=2), 2)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        if not normalize:
+            return zeroth.astype(int), first.astype(int), second.astype(int)
+        else:
+            return zeroth.astype(int)/np.sum(zeroth), \
+                   first.astype(int)/np.expand_dims(np.sum(first, axis=1), 1), \
+                   second.astype(int)/np.expand_dims(np.sum(second, axis=2), 2)
 
 
 def bout_durations(epoch_stages: list,

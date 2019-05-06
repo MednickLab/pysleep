@@ -44,9 +44,9 @@ def total_sleep_time(mins_in_stage, wake_stages=pysleep_defaults.wake_stages_to_
 
 
 def lights_on_off_and_sleep_latency(epoch_stages,
-                                    lights_off=None,
+                                    lights_off=None, #FIXME is this ever used? remove arg...
                                     lights_on=None,
-                                    epoch_sync_offset=0,
+                                    epoch_sync_offset_seconds=0,
                                     wbso_stage=pysleep_defaults.wbso_stage,
                                     wase_stage=pysleep_defaults.wase_stage,
                                     stages_to_consider=pysleep_defaults.stages_to_consider,
@@ -64,7 +64,7 @@ def lights_on_off_and_sleep_latency(epoch_stages,
     :param wase_stage: stage that represents Wake After Sleep End (as opposed to WASO)
     :param stages_to_consider: stages that we consider sleep, including waso
     :param epoch_len: length of an epoch in seconds (30s by default)
-    :return: lights off, lights on, sleep latency (all in minutes)
+    :return: lights off in seconds, lights on in seconds, sleep latency in minutes, epoch_stages with only epochs between lights on and lights off
     """
     wbso_epochs = np.where(np.array(epoch_stages) == wbso_stage)[0]
     wase_epochs = np.where(np.array(epoch_stages) == wase_stage)[0]
@@ -89,10 +89,12 @@ def lights_on_off_and_sleep_latency(epoch_stages,
 
     sleep_latency = sleep_start - lights_off if (sleep_start is not None) else None
 
-    lights_off_scaled = None if lights_off is None else lights_off * epoch_len / 60 + epoch_sync_offset/60
-    lights_on_scaled = None if lights_on is None else lights_on * epoch_len / 60 + epoch_sync_offset/60
-    sleep_latency_scaled = None if sleep_latency is None else sleep_latency * epoch_len / 60 + epoch_sync_offset/60
+    epoch_stages_sliced = epoch_stages[lights_off:lights_on]
 
-    return lights_off_scaled, lights_on_scaled, sleep_latency_scaled
+    lights_off_seconds = None if lights_off is None else lights_off * epoch_len + epoch_sync_offset_seconds
+    lights_on_seconds = None if lights_on is None else lights_on * epoch_len + epoch_sync_offset_seconds
+    sleep_latency_mins = None if sleep_latency is None else sleep_latency * epoch_len / 60
+
+    return lights_off_seconds, lights_on_seconds, sleep_latency_mins, epoch_stages_sliced
 
 

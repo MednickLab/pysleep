@@ -83,20 +83,22 @@ def test_duration_dists():
 def test_lights_on_off_and_sleep_latency():
     epoch_stage = ['unknown', 'wbso', 'wbso', 'wbso', 'n1', 'n1', 'n1', 'unknown', 'unknown', 'unknown',
                    'n2', 'waso', 'n2', 'n3', 'n2', 'n1', 'n1', 'n2', 'rem', 'unknown']
-    lights_off, lights_on,  latency = lights_on_off_and_sleep_latency(epoch_stage)
+    lights_off, lights_on,  latency, sliced_epoch_stages = lights_on_off_and_sleep_latency(epoch_stage)
     assert latency == 1.5
-    assert lights_off == 0.5
-    assert lights_on == 9.5
+    assert lights_off == 30
+    assert lights_on == 9.5*60
+    assert sliced_epoch_stages == ['wbso', 'wbso', 'wbso', 'n1', 'n1', 'n1', 'unknown', 'unknown', 'unknown',
+                   'n2', 'waso', 'n2', 'n3', 'n2', 'n1', 'n1', 'n2', 'rem']
 
     epoch_stage = ['n1', 'n1', 'n1', 'unknown', 'unknown', 'unknown',
                    'n2', 'waso', 'n2', 'n3', 'n2', 'n1', 'n1', 'n2', 'rem']
-    lights_off, lights_on, latency = lights_on_off_and_sleep_latency(epoch_stage)
+    lights_off, lights_on, latency, sliced_epoch_stages = lights_on_off_and_sleep_latency(epoch_stage)
     assert latency == 0
     assert lights_off == 0
-    assert lights_on == 7.5
+    assert lights_on == 7.5*60
 
     epoch_stage = ['n1', 'n1', 'n1', 'n1', 'n1']
-    lights_off, lights_on, latency = lights_on_off_and_sleep_latency(epoch_stage)
+    lights_off, lights_on, latency, sliced_epoch_stages = lights_on_off_and_sleep_latency(epoch_stage)
     assert latency == 0
     assert lights_off == 0
-    assert lights_on == 2.5
+    assert lights_on == 2.5*60
