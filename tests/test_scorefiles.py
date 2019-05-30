@@ -7,6 +7,7 @@ from datetime import datetime
 
 
 def test_extract_epochstages_from_scorefile():
+
     stagemap = yaml.safe_load(
         open(os.path.join(os.path.dirname(__file__), "testfiles/study_settings/MednickHumeType_study_settings.yaml"),
              'rb'))['stage_map']

@@ -56,8 +56,8 @@ def lights_on_off_and_sleep_latency(epoch_stages,
      - lights off (either passed through from input, or assumed the start of the first epoch of wbso or sleep/waso)
      - lights on (either passed though from input, or assumed the end of the last sleep or wase epoch)
      - sleep latency (difference between lights off and the first epoch of sleep, may be None if no sleep occurred)
-    :param lights_off: when lights where turned off in minutes since (edf record start+epoch_sync_offset)
-    :param lights_on: when lights where turned on in minutes since (edf record start+epoch_sync_offset)
+    :param lights_off: when lights where turned off in seconds since (edf record start+epoch_sync_offset)
+    :param lights_on: when lights where turned on in seconds since (edf record start+epoch_sync_offset)
     :param epoch_sync_offset: offset (in seconds) between the start of the first scored epoch and the start of the edf record
     :param epoch_stages: the pattern of sleep stages with self transitions, e.g. [0 0 1 1 1 2 2 2 1]
     :param wbso_stage: stage that represents Wake Before Sleep Onset (as opposed to WASO)
@@ -85,7 +85,7 @@ def lights_on_off_and_sleep_latency(epoch_stages,
         if len(wase_epochs):
             lights_on = wase_epochs[-1]+1
         else:
-            lights_on = 1 + sleep_epochs[-1] if (sleep_start is not None) else wbso_epochs[-1]
+            lights_on = 1 + sleep_epochs[-1] if (sleep_start is not None) else 1 + wbso_epochs[-1]
 
     sleep_latency = sleep_start - lights_off if (sleep_start is not None) else None
 

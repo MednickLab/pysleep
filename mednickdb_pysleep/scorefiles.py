@@ -8,14 +8,16 @@ from scipy.io import loadmat
 from datetime import datetime, timedelta
 from mednickdb_pysleep import pysleep_defaults, pysleep_utils
 import wonambi.ioeeg.edf as wnbi
+from typing import Tuple
+import numpy as np
 
 
-def extract_epochstages_from_scorefile(file, stagemap):
+def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, float, datetime]:
     """
     Extract score data from file, and pass to the appropriate scoring reading/conversion function
     :param file: file to extract scoring from
     :param stagemap: stagemap to use for convert
-    :return: parsed data
+    :return: parsed data, epoch offset (difference between start of scoring and start of recording), startime (startime as a datetime)
     """
     if file.endswith("xls") or file.endswith("xlsx") or file.endswith(".csv"):
         xl = pd.ExcelFile(file)
@@ -379,10 +381,10 @@ def _parse_full_type_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
     return dict_obj
 
 
-def _parse_grass_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
+def _parse_grass_scorefile(file):
     """
     Parse the grass type scorefile
-    :param file:
+    :param file: the file to parse
     :return:
     """
     dict_obj = {"epochoffset": 0, 'epochstages': []}
@@ -392,11 +394,11 @@ def _parse_grass_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
 
     time = None
     date = None
-    for i in list_data.iterrows():
-        if (i[1][1] == "RecordingStartTime"):
-            time = i[1][2]
-        if (i[1][1] == "TestDate"):
-            date = i[1][2]
+    for row_idx, row in list_data.iterrows():
+        if (row.ix[1] == "RecordingStartTime"):
+            time = row.ix[2]
+        if (row.ix[1] == "TestDate"):
+            date = row.ix[2]
         if date is not None and time is not None:
             break
 
