@@ -395,18 +395,18 @@ def _parse_grass_scorefile(file):
     time = None
     date = None
     for row_idx, row in list_data.iterrows():
-        if (row.ix[1] == "RecordingStartTime"):
-            time = row.ix[2]
-        if (row.ix[1] == "TestDate"):
-            date = row.ix[2]
+        if (row.iloc[1] == "RecordingStartTime"):
+            time = row.iloc[2]
+        if (row.iloc[1] == "TestDate"):
+            date = row.iloc[2]
         if date is not None and time is not None:
             break
 
     dict_obj['starttime'] = datetime.strptime(date + ' ' + time, '%m/%d/%y %H:%M:%S')
 
-    for i in graph_data.iterrows():
-        if not (math.isnan(i[1][1])):
-            dict_obj['epochstages'].append(int(i[1][1]))
+    for _, i in graph_data.iterrows():
+        if not (math.isnan(i[1])):
+            dict_obj['epochstages'].append(int(i[1]))
         else:
             break
 
