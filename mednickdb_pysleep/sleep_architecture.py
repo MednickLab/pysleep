@@ -18,7 +18,7 @@ def sleep_stage_architecture(epoch_stage,
         if u in stages_to_consider:
             mins_in_stage[u] = c*epoch_len/60
     total_minutes = np.nansum([counts for stage, counts in mins_in_stage.items()])
-    percent_in_stage = {k: 100 * v / total_minutes for k, v in mins_in_stage.items()}
+    percent_in_stage = {k: 100 * v / total_minutes if total_minutes else 0 for k, v in mins_in_stage.items()}
     return mins_in_stage, percent_in_stage, total_minutes
 
 
@@ -30,7 +30,7 @@ def sleep_efficiency(mins_in_stage, total_minutes, wake_stages=pysleep_defaults.
     :param wake_stages: wake stages as "list of dict keys" or "list of list indexes" into mins in stage
     :return: sleep efficiency
     """
-    return (total_minutes - np.sum([mins_in_stage[s] for s in wake_stages]))/total_minutes
+    return (total_minutes - np.sum([mins_in_stage[s] for s in wake_stages]))/total_minutes if total_minutes else np.NaN
 
 
 def total_sleep_time(mins_in_stage, wake_stages=pysleep_defaults.wake_stages_to_consider):

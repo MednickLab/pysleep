@@ -33,6 +33,8 @@ def extract_band_power_per_epoch(edf_filepath: str,
     """
 
     d = Dataset(edf_filepath)
+    assert start_time is None or start_time > 0
+    assert end_time is None or end_time < d.header['n_samples']/d.header['s_freq'], "end time larger than record!"
     data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
     power = timefrequency(data, method='spectrogram')
     abs_power = math(power, operator_name='abs')
@@ -52,7 +54,10 @@ def extract_band_power_per_epoch(edf_filepath: str,
         while win_start+epoch_len < time_axis[-1]:
             time_mask = (win_start < time_axis) & (time_axis < win_start + epoch_len)
             idx = np.ix_(all_chans, time_mask, freq_mask)
-            chan_epoch_per_band = chan_time_freq[idx].mean(axis=1).mean(axis=1) / freq_binsize
+            if idx:
+                chan_epoch_per_band = chan_time_freq[idx].mean(axis=1).mean(axis=1) / freq_binsize
+            else:
+                chan_epoch_per_band = np.zeros((len(chans_to_consider),))
             epoch_cont.append(chan_epoch_per_band)
             win_start += epoch_len
         band_cont.append(np.stack(epoch_cont, -1))

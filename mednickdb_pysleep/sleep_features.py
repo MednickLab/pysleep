@@ -194,4 +194,4 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
         return features_df
     else:
         print('No events in given stages')
-        return None
+        return pd.DataFrame() #return empty df
