@@ -127,3 +127,28 @@ def data_to_matfile(data, filename):
     if ~isinstance(data, np.ndarray):
         data = data.values
     savemat(filename, mdict={'dc': data})
+
+
+def assign_quartiles(events_df, epochstages, epoch_len=pysleep_defaults.epoch_len):
+    """
+    Assign quartiles to an events_df
+    :param events_df: the events df, 1 row per event, with start and duration columns (in seconds)
+    :param epochstages:
+    :return:
+    """
+    assert 'onset' in events_df.columns and 'duration' in events_df.columns, 'start and duration required in events_df'
+    total_epochs = len(epochstages)
+    quartiles = np.round(np.linspace(0,total_epochs,4+1))*epoch_len
+    events_df['quartile'] = None
+    for idx, (quartile_start, quartile_end) in enumerate(zip(quartiles[:-1],quartiles[1:])):
+        events_df.loc[(quartile_start <= events_df['onset']) & (events_df['onset'] < quartile_end), 'quartile'] = 'Q'+str(idx+1)
+    return events_df, quartiles
+
+def trunc(values: np.ndarray, decs: int=0):
+    """
+    truncate values to x decimal places
+    :param values: values to truncate
+    :param decs: decimal places to truncate too
+    :return: trunc values
+    """
+    return np.trunc(values*10**decs)/(10**decs)

@@ -8,6 +8,7 @@ from scipy.io import loadmat
 from datetime import datetime, timedelta
 from mednickdb_pysleep import pysleep_defaults, pysleep_utils
 import wonambi.ioeeg.edf as wnbi
+import mne
 from typing import Tuple
 import numpy as np
 
@@ -40,6 +41,9 @@ def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, floa
 
     elif file.endswith('.mat'):  # assume that all .mat are hume type
         epochdict = _hume_parse(file)
+
+    elif file.endswith('.vrmk'):  # assume that all .mat are hume type
+        epochdict = _parse_vrmk_scorfile(file, stagemap)
 
     else:
         raise ValueError('ScoreFile not able to be parsed.')
@@ -379,6 +383,20 @@ def _parse_full_type_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
 
     dict_obj['starttime'] = datetime.strptime(date + ' ' + starttime, '%d/%m/%Y %H.%M.%S')
     return dict_obj
+
+
+def _parse_vrmk_scorfile(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
+    """Parses a vmrk file from brainvision to epochstages and epochoffset"""
+    annot = mne.read_annotaitons(file)
+    assert annot.shape[0] > 0, "no sleep stage annotations found, this is probably an error"
+
+    valid_stages = annot['description'].isin(stage_map_dict.keys())
+    annot = annot.loc[valid_stages, :]
+    annot = _resample_to_new_epoch_len(annot, epoch_len)
+
+    #dictObj['starttime'] = edf.hdr['start_time'] #TODO deal with startime
+
+    return {'epochstages':list(annot['description'].values), 'epochoffset':annot['onset'].values[0]}
 
 
 def _parse_grass_scorefile(file):

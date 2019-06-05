@@ -27,10 +27,11 @@ default_freq_bands = {
     'theta_band_hz': (4, 8),
     'alpha_band_hz': (8, 12),
     'sigma_band_hz': (11, 16),
-    'slow_sigma_band_hz': (11, 13),  # TODO whats the best fast/slow bands?
-    'fast_sigma_band_hz': (13, 16),
+    'slowsigma_band_hz': (11, 13),
+    'fastsigma_band_hz': (13, 16),
     'beta_band_hz': (16, 20)
 }
+band_power_epoch_len = 30
 
 
 # %% transition probability

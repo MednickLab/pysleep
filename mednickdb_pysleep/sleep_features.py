@@ -5,6 +5,7 @@ from mednickdb_pysleep import pysleep_defaults
 from mednickdb_pysleep.sleep_architecture import sleep_stage_architecture
 from typing import List, Tuple, Dict
 import pandas as pd
+import numpy as np
 
 if pysleep_defaults.load_matlab_detectors:
     import yetton_rem_detector
@@ -29,7 +30,7 @@ def detect_spindles(edf_filepath: str,
     data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
     detection = DetectSpindle(algo)
     spindles_detected = detection(data)
-    spindles_df = pd.DataFrame(spindles_detected.events)
+    spindles_df = pd.DataFrame(spindles_detected.events, dtype=float)
     col_map = {'start': 'onset',
                'end': None,
                'peak_time': 'peak_time',
@@ -50,7 +51,6 @@ def detect_spindles(edf_filepath: str,
     spindles_df.columns = [col_map[k] for k in spindles_df.columns]
     spindles_df['peak_time'] = spindles_df['peak_time'] - spindles_df['onset']
     spindles_df['description'] = 'spindle'
-    spindles_df['eventtype'] = 'sleep_feature'
     return spindles_df.sort_values('onset')
 
 
@@ -72,7 +72,7 @@ def detect_slow_oscillation(edf_filepath: str,
     data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
     detection = DetectSlowWave(algo)
     sos_detected = detection(data)
-    sos_df = pd.DataFrame(sos_detected.events)
+    sos_df = pd.DataFrame(sos_detected.events, dtype=float)
     col_map = {'start': 'onset',
                'end': None,
                'trough_time': 'trough_time',
@@ -90,7 +90,6 @@ def detect_slow_oscillation(edf_filepath: str,
     sos_df['trough_time'] = sos_df['trough_time'] - sos_df['onset']
     sos_df['zero_time'] = sos_df['zero_time'] - sos_df['onset']
     sos_df['description'] = 'slow_oscillation'
-    sos_df['eventtype'] = 'sleep_feature'
     return sos_df.sort_values('onset')
 
 
@@ -114,9 +113,8 @@ def detect_rems(edf_filepath: str,
     rem_starts = (rem_start_and_ends['onset']*256).tolist() #must be in samples, must be 256Hz.
     rem_ends = ((rem_start_and_ends['onset'] + rem_start_and_ends['duration'])*256).tolist()
     onsets, _, _, _, _ = rem_detector.runDetectorCommandLine(edf_filepath, [rem_starts, rem_ends], algo, loc_chan, roc_chan)
-    rem_df = pd.DataFrame({'onsets': onsets})
+    rem_df = pd.DataFrame({'onsets': onsets}, dtype=float)
     rem_df['description'] = 'rem_event'
-    rem_df['eventtype'] = 'sleep_feature'
 
 
 def assign_stage_to_feature_events(feature_events: pd.DataFrame, epochstages: list) -> pd.DataFrame:
@@ -132,9 +130,9 @@ def assign_stage_to_feature_events(feature_events: pd.DataFrame, epochstages: li
     else:
         raise ValueError('epochstages is of unknown type. Should be dict or dataframe.')
 
-    def check_overlap(start, duration, stage_events):
+    def check_overlap(start, duration, events):
         end = start + duration
-        for idx, stage in stage_events.iterrows():
+        for idx, stage in events.iterrows():
             if pysleep_utils.overlap(start, end, stage['onset'], stage['onset']+stage['duration']):
                 return stage['description']
         return pysleep_defaults.unknown_stage
@@ -158,18 +156,23 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
     :param av_across_channels: whether to average across channels, or return separate for each channel
     :return: dataframe of with len(stage)*len(chan) or len(stage) rows with density + mean of each feature as columns
     """
-    assert len(feature_events['description'].unique()) == 1, 'Only a single event type should be included'
     mins_in_stage, _, _ = sleep_stage_architecture(epoch_stages, stages_to_consider=stages_to_consider)
-    non_var_cols = ['stage', 'eventtype', 'onset', 'description', 'chan', 'stage']
+    if 'quartile' in feature_events.columns:
+        index_vars = ['stage','description', 'quartile']
+    else:
+        index_vars = ['stage','description']
+    pos_non_var_cols = ['stage', 'onset', 'description', 'chan'] + index_vars
+    non_var_cols = [col for col in feature_events.columns if col in pos_non_var_cols]
     features_per_stage_cont = []
-    for stage, feature_data_per_stage in feature_events.groupby('stage'):
+    for stage_and_other_idx, feature_data_per_stage in feature_events.groupby(index_vars):
+        stage = stage_and_other_idx[0]
         if stage in stages_to_consider:
             per_chan_cont = []
             channels_without_events = set(feature_data_per_stage['chan'].unique() if channels is None else channels)
             for chan, feature_data_per_stage_chan in feature_data_per_stage.groupby('chan'):
                 if channels is None or chan in channels:
                     channels_without_events = channels_without_events - {chan}
-                    features_per_chan = feature_data_per_stage_chan.drop(non_var_cols, axis=1).mean()
+                    features_per_chan = feature_data_per_stage_chan.drop(non_var_cols, axis=1).agg(np.nanmean)
                     features_per_chan['density'] = feature_data_per_stage_chan.shape[0]/mins_in_stage[stage]
                     features_per_chan['count'] = feature_data_per_stage_chan.shape[0]
                     features_per_chan.index = ['av_'+col for col in features_per_chan.index]
@@ -179,18 +182,17 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
                 for chan in channels_without_events:
                     per_chan_cont.append(pd.Series({'chan': chan, 'av_density': 0, 'av_count': 0}))
             if len(per_chan_cont) > 0:
-                features_per_stage = pd.concat(per_chan_cont, axis=1).T
+                features_per_stage = pd.concat(per_chan_cont, axis=1, sort=False).T
                 if av_across_channels:
                     features_per_stage = features_per_stage.drop('chan', axis=1).mean()
-                features_per_stage['stage'] = stage
+                for idx_idx, idx in enumerate(index_vars):
+                    features_per_stage[idx] = stage_and_other_idx[idx_idx]
                 features_per_stage_cont.append(features_per_stage)
     if len(features_per_stage_cont) > 0:
         if av_across_channels:
             features_df = pd.concat(features_per_stage_cont, axis=1).T
         else:
             features_df = pd.concat(features_per_stage_cont, axis=0)
-        features_df['description'] = feature_events['description'][0]
-        features_df['eventtype'] = feature_events['eventtype'][0]
         return features_df
     else:
         print('No events in given stages')
