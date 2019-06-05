@@ -17,7 +17,7 @@ def test_assign_quartiles():
     events = pd.DataFrame({'onset':np.arange(0,10)*30,'duration':[30]*10})
     epoch_stages = ['waso']*10
     events, _ = assign_quartiles(events, epoch_stages)
-    assert events['quartile'].to_list() == ['Q1','Q1','Q2','Q2','Q2','Q3','Q3','Q3','Q4','Q4']
+    assert events['quartile'].tolist() == ['Q1','Q1','Q2','Q2','Q2','Q3','Q3','Q3','Q4','Q4']
 
 
 def test_fill_unknown_stages():
