@@ -57,7 +57,7 @@ def test_density_and_mean_features_calculations():
     stages = ['n2', 'n3']
     features = sleep_feature_variables_per_stage(spindle_events, epoch_stages, stages_to_consider=stages)
     assert features.shape[0] == len(stages)
-    expected_cols = ['av_density', 'av_count'] + ['av_' + col for col in spindle_events.columns]+list(spindle_events.columns)
+    expected_cols = ['density', 'count'] + ['av_' + col for col in spindle_events.columns]+list(spindle_events.columns)
     assert all([col in expected_cols for col in features.columns])
     features_per_chan = sleep_feature_variables_per_stage(spindle_events, epoch_stages, av_across_channels=False, stages_to_consider=stages)
     chan_stage_missing_spindles = 1
@@ -70,6 +70,6 @@ def test_density_and_mean_features_calculations():
     features_per_chan = sleep_feature_variables_per_stage(spindle_events, epoch_stages, channels=channels,
                                                           av_across_channels=False, stages_to_consider=stages)
     assert set(features_per_chan['chan'].unique()) == set(channels)
-    assert all(0 == features_per_chan.loc[features_per_chan['chan'] == 'F9', 'av_count'])
+    assert all(0 == features_per_chan.loc[features_per_chan['chan'] == 'F9', 'count'])
 
     os.remove(os.path.join(file_dir, 'testfiles/example1_spindle_events.csv'))

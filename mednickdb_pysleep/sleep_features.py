@@ -34,7 +34,7 @@ def detect_spindles(edf_filepath: str,
     col_map = {'start': 'onset',
                'end': None,
                'peak_time': 'peak_time',
-               'peak_val_det': 'peak_uV_in_spindle_band',
+               'peak_val_det': 'peak_uV',
                'peak_val_orig': None,
                'dur': 'duration',
                'auc_det': None,
@@ -89,7 +89,7 @@ def detect_slow_oscillation(edf_filepath: str,
     sos_df['peak_time'] = sos_df['peak_time'] - sos_df['onset']
     sos_df['trough_time'] = sos_df['trough_time'] - sos_df['onset']
     sos_df['zero_time'] = sos_df['zero_time'] - sos_df['onset']
-    sos_df['description'] = 'slow_oscillation'
+    sos_df['description'] = 'slow_osc'
     return sos_df.sort_values('onset')
 
 
@@ -173,14 +173,14 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
                 if channels is None or chan in channels:
                     channels_without_events = channels_without_events - {chan}
                     features_per_chan = feature_data_per_stage_chan.drop(non_var_cols, axis=1).agg(np.nanmean)
-                    features_per_chan['density'] = feature_data_per_stage_chan.shape[0]/mins_in_stage[stage]
-                    features_per_chan['count'] = feature_data_per_stage_chan.shape[0]
                     features_per_chan.index = ['av_'+col for col in features_per_chan.index]
+                    features_per_chan['density'] = feature_data_per_stage_chan.shape[0] / mins_in_stage[stage]
+                    features_per_chan['count'] = feature_data_per_stage_chan.shape[0]
                     features_per_chan['chan'] = chan
                     per_chan_cont.append(features_per_chan)
             if len(channels_without_events) > 0: #if there were channels that didnt have any spindles
                 for chan in channels_without_events:
-                    per_chan_cont.append(pd.Series({'chan': chan, 'av_density': 0, 'av_count': 0}))
+                    per_chan_cont.append(pd.Series({'chan': chan, 'density': 0, 'count': 0}))
             if len(per_chan_cont) > 0:
                 features_per_stage = pd.concat(per_chan_cont, axis=1, sort=False).T
                 if av_across_channels:

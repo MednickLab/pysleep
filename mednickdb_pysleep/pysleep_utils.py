@@ -140,9 +140,10 @@ def assign_quartiles(events_df, epochstages, epoch_len=pysleep_defaults.epoch_le
     total_epochs = len(epochstages)
     quartiles = np.round(np.linspace(0,total_epochs,4+1))*epoch_len
     events_df['quartile'] = None
-    for idx, (quartile_start, quartile_end) in enumerate(zip(quartiles[:-1],quartiles[1:])):
+    for idx, (quartile_start, quartile_end) in enumerate(zip(quartiles[:-1], quartiles[1:])):
         events_df.loc[(quartile_start <= events_df['onset']) & (events_df['onset'] < quartile_end), 'quartile'] = 'Q'+str(idx+1)
     return events_df, quartiles
+
 
 def trunc(values: np.ndarray, decs: int=0):
     """

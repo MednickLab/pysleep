@@ -34,7 +34,7 @@ def extract_band_power(edf_filepath: str,
     """
 
     d = Dataset(edf_filepath)
-    assert start_time is None or start_time > 0
+    assert start_time is None or start_time >= 0
     assert end_time is None or end_time < d.header['n_samples']/d.header['s_freq'], "end time larger than record!"
     data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
     power = timefrequency(data, method='spectrogram')
@@ -51,7 +51,7 @@ def extract_band_power(edf_filepath: str,
     cont = []
     for band, freqs in bands.items():
         freq_mask = (freqs[0] <= freq_axis) & (freqs[1] >= freq_axis)
-        for win_start in times[:-1]:
+        for win_start in times:
             time_mask = (win_start < time_axis) & (time_axis < win_start + epoch_len)
             idx = np.ix_(all_chans, time_mask, freq_mask)
             if idx:
@@ -64,7 +64,8 @@ def extract_band_power(edf_filepath: str,
                                        'band':band.split('_')[0],
                                        'chan':chan,
                                        'power':power}))
-    return pd.concat(cont, axis=1).T.apply(lambda x: pd.to_numeric(x, errors='ignore'))
+    band_power = pd.concat(cont, axis=1).T.apply(lambda x: pd.to_numeric(x, errors='ignore'))
+    return band_power
 
 
 def extract_band_power_per_epoch(band_power_df: pd.DataFrame,
@@ -93,7 +94,8 @@ def assign_band_power_stage(band_power_per_epoch_df: pd.DataFrame,
     """
     cont = []
     for (band, chan), power_df, in band_power_per_epoch_df.groupby(['band','chan']):
-        assert power_df.shape[0] == len(epochstages), "Missmatch in number of epochs and power per epoch, epoch len correct?"
+        assert power_df.shape[0] >= len(epochstages), "Missmatch in number of epochs and power per epoch, epoch len correct?"
+        power_df = power_df.iloc[0:len(epochstages), :]
         power_df.loc[:, 'stage'] = np.array(epochstages)
         cont.append(power_df)
     return pd.concat(cont, axis=0)
