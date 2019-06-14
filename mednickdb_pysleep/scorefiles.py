@@ -5,20 +5,21 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import scipy.interpolate
 from scipy.io import loadmat
-from datetime import datetime, timedelta
+import datetime
 from mednickdb_pysleep import pysleep_defaults, pysleep_utils
 import wonambi.ioeeg.edf as wnbi
 import mne
 from typing import Tuple
 import numpy as np
+from string import Template
 
 
-def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, float, datetime]:
+def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, float, datetime.datetime]:
     """
     Extract score data from file, and pass to the appropriate scoring reading/conversion function
     :param file: file to extract scoring from
     :param stagemap: stagemap to use for convert
-    :return: parsed data, epoch offset (difference between start of scoring and start of recording), startime (startime as a datetime)
+    :return: parsed data, epoch offset (difference between start of scoring and start of recording), startime (startime as a datetime.datetime)
     """
     if file.endswith("xls") or file.endswith("xlsx") or file.endswith(".csv"):
         xl = pd.ExcelFile(file)
@@ -43,7 +44,7 @@ def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, floa
         epochdict = _hume_parse(file)
 
     elif file.endswith('.vrmk'):  # assume that all .mat are hume type
-        epochdict = _parse_vrmk_scorfile(file, stagemap)
+        epochdict = _parse_vrmk_scorefile(file, stagemap)
 
     else:
         raise ValueError('ScoreFile not able to be parsed.')
@@ -107,7 +108,7 @@ def _hume_parse(file, epoch_len=pysleep_defaults.epoch_len):
         dict_obj['starttime'] = mat_datenum_to_py_datetime(hume_dict['recStart'])
 
     if 'lightsOFF' in hume_dict:
-        dict_obj['epochoffset'] = (mat_datenum_to_py_datetime(hume_dict['lightsOFF']) - mat_datenum_to_py_datetime(hume_dict['recStart'])).seconds
+        dict_obj['epochoffset'] = (mat_datenum_to_py_datetime(hume_dict['lightsOFF']) - mat_datenum_to_py_datetime(hume_dict['recStart'])).seconds - np.where(hume_dict['onsets']!=0)[0][0]*30
 
     if 'stageTime' in hume_dict:
         dict_obj['epochoffset'] += hume_dict['win'] * hume_dict['stageTime'][0]
@@ -267,7 +268,7 @@ def _nsrr_xml_parse(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
     return_dict = {}
     return_dict['epochstages'] = list(annot_resampled['description'].values)
     return_dict['epochoffset'] = annot_resampled['onset'].values[0]
-    return_dict['starttime'] = datetime.strptime(dict_xml['ClockTime'][0].split(' ')[-1], '%H.%M.%S')
+    return_dict['starttime'] = datetime.datetime.strptime(dict_xml['ClockTime'][0].split(' ')[-1], '%H.%M.%S')
 
     return return_dict
 
@@ -381,11 +382,11 @@ def _parse_full_type_txt_scorefile(file, epoch_len=pysleep_defaults.epoch_len):
             date = full_line[1]
             print(date)
 
-    dict_obj['starttime'] = datetime.strptime(date + ' ' + starttime, '%d/%m/%Y %H.%M.%S')
+    dict_obj['starttime'] = datetime.datetime.strptime(date + ' ' + starttime, '%d/%m/%Y %H.%M.%S')
     return dict_obj
 
 
-def _parse_vrmk_scorfile(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
+def _parse_vrmk_scorefile(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
     """Parses a vmrk file from brainvision to epochstages and epochoffset"""
     annot = mne.read_annotaitons(file)
     assert annot.shape[0] > 0, "no sleep stage annotations found, this is probably an error"
@@ -420,7 +421,14 @@ def _parse_grass_scorefile(file):
         if date is not None and time is not None:
             break
 
-    dict_obj['starttime'] = datetime.strptime(date + ' ' + time, '%m/%d/%y %H:%M:%S')
+    if not (isinstance(time, datetime.time) or isinstance(date, datetime.datetime)):
+        [H, M, S] = time.split(':')
+        micro = 1000*1000*(float(S)-int(S))
+        time = datetime.time(hour=int(H), minute=int(M), second=int(S), microsecond=int(micro))
+    if not (isinstance(date, datetime.datetime) or isinstance(date, datetime.date)):
+        date = datetime.datetime.strptime(date, '%m/%d/%y')
+
+    dict_obj['starttime'] = datetime.datetime.combine(date, time)
 
     for _, i in graph_data.iterrows():
         if not (math.isnan(i[1])):
@@ -464,8 +472,8 @@ def hume_matfile_loader(matfile_path):
 
 def mat_datenum_to_py_datetime(mat_datenum):
     """
-    Converts a matlab "datenum" type to a python datetime type
+    Converts a matlab "datenum" type to a python datetime.datetime type
     :param mat_datenum: matlab datenum to conver
-    :return: converted datetime
+    :return: converted datetime.datetime
     """
-    return datetime.fromordinal(int(mat_datenum)) + timedelta(days=float(mat_datenum) % 1) - timedelta(days=366)
+    return datetime.datetime.fromordinal(int(mat_datenum)) + datetime.timedelta(days=float(mat_datenum) % 1) - datetime.timedelta(days=366)

@@ -56,6 +56,7 @@ def lights_on_off_and_sleep_latency(epoch_stages,
      - lights off (either passed through from input, or assumed the start of the first epoch of wbso or sleep/waso)
      - lights on (either passed though from input, or assumed the end of the last sleep or wase epoch)
      - sleep latency (difference between lights off and the first epoch of sleep, may be None if no sleep occurred)
+     Note: wbso and wase must be coded different (and given as arguments if not default)
     :param lights_off: when lights where turned off in seconds since (edf record start+epoch_sync_offset)
     :param lights_on: when lights where turned on in seconds since (edf record start+epoch_sync_offset)
     :param epoch_sync_offset: offset (in seconds) between the start of the first scored epoch and the start of the edf record

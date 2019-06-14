@@ -35,7 +35,8 @@ def extract_band_power(edf_filepath: str,
 
     d = Dataset(edf_filepath)
     assert start_time is None or start_time >= 0
-    assert end_time is None or end_time < d.header['n_samples']/d.header['s_freq'], "end time larger than record!"
+    assert end_time is None or end_time <= d.header['n_samples']/d.header['s_freq'], \
+        "end time ("+ str(end_time) +") larger than record end!"+str(d.header['n_samples']/d.header['s_freq'])
     data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
     power = timefrequency(data, method='spectrogram')
     abs_power = math(power, operator_name='abs')
