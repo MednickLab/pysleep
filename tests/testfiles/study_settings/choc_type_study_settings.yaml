@@ -1,0 +1,33 @@
+known_eeg_chans:
+  C3: C3
+  C4: C4
+  F3: F3
+  F4: F4
+  O1: O1
+  O2: O2
+  M1: M1
+  M2: M2
+  A1: A1
+  A2: A2
+known_eog_chans:
+  E1: LOC
+  E2: ROC
+known_emg_chans:
+  EMG1: chin1
+  EMG2: chin2
+known_ecg_chans:
+  ECG1: ECG1
+  ECG2: ECG2
+ref_type: FPz
+#sleep stages
+stage_map:
+  ’11’: wake
+  '12’: n1
+  ’13’: n2
+  ’14’: n3
+  ’15’: rem
+#Extraction settings
+chans_for_band_power: all
+chans_for_spindles: all
+chans_for_slow_osc: all
+chans_for_rems: all
