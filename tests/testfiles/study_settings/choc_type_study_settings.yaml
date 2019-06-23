@@ -1,31 +1,31 @@
 known_eeg_chans:
-  C3: C3
-  C4: C4
-  F3: F3
-  F4: F4
-  O1: O1
-  O2: O2
-  M1: M1
-  M2: M2
-  A1: A1
-  A2: A2
+  C3-M2: C3
+  C4-M1: C4
+  F3-M2: F3
+  F4-M1: F4
+  O1-M2: O1
+  O2-M1: O2
+  C3-A2: C3
+  C4-A1: C4
+  F3-A2: F3
+  F4-A1: F4
+  O1-A2: O1
+  O2-A1: O2
 known_eog_chans:
-  E1: LOC
-  E2: ROC
+  EOG1: LOC
+  EOG2: ROC
 known_emg_chans:
-  EMG1: chin1
-  EMG2: chin2
+  Chin: chin
 known_ecg_chans:
-  ECG1: ECG1
-  ECG2: ECG2
-ref_type: FPz
+  EKG: ECG
+ref_type: contra_mastoid
 #sleep stages
 stage_map:
-  ’11’: wake
-  '12’: n1
-  ’13’: n2
-  ’14’: n3
-  ’15’: rem
+  W: wake
+  N1: n1
+  N2: n2
+  N3: n3
+  R: rem
 #Extraction settings
 chans_for_band_power: all
 chans_for_spindles: all

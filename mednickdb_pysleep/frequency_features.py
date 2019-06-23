@@ -22,14 +22,14 @@ def extract_band_power(edf_filepath: str,
             'theta': (4, 7),
             'alpha': (8, 12),
             'sigma': (11, 16),
-            'slow_sigma': (11, 13),  # TODO whats the best fast/slow bands?
+            'slow_sigma': (11, 13),
             'fast_sigma': (13, 16),
             'beta': (13, 30)
         }
     :param chans_to_consider: which channels to consider
-    :param start_time: start time of the recording to extract band power for (when do epochs start)
+    :param start_time: start time of the recording to extract band power for (when do epochs start), onset is measured from this
     :param end_time: end time of the recording to extract band power for
-    :param epoch_len: int = pysleep_defaults.epoch_len
+    :param epoch_len: how long a time bin you want your power to be averaged over
     :return: chan_epoch_band as a numpy array, and times, bands, chans
     """
 
@@ -42,8 +42,7 @@ def extract_band_power(edf_filepath: str,
     abs_power = math(power, operator_name='abs')
     chan_time_freq = abs_power.data[0]
     all_chans = np.ones((chan_time_freq.shape[0],), dtype=bool)
-
-    time_axis = np.round(abs_power.axis['time'][0], 2)
+    time_axis = np.round(abs_power.axis['time'][0], 2) - start_time
     freq_axis = np.round(abs_power.axis['freq'][0], 2)
     chan_axis = abs_power.axis['chan'][0]
     freq_binsize = freq_axis[1] - freq_axis[0]
@@ -70,11 +69,14 @@ def extract_band_power(edf_filepath: str,
 
 
 def extract_band_power_per_epoch(band_power_df: pd.DataFrame,
+                                 epoch_offset: float=0,
                                  epoch_len: float=pysleep_defaults.epoch_len) -> pd.DataFrame:
     """
     Resample the bandpower df so that its an average per epoch
     :param band_power_df: band power df outputted from extract_band_power
     :param epoch_len: the new epoch len
+    :param epoch_offset: the difference in seconds from when you want your sleep epochs to start compared to
+    band power epochs (this is probably the differnece between epoch stsges and edf start)
     :return: resampled df
     """
     band_power_df['onset'] = band_power_df['onset'].apply(lambda x: pd.Timedelta(seconds=x))

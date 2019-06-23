@@ -11,7 +11,11 @@ import wonambi.ioeeg.edf as wnbi
 import mne
 from typing import Tuple
 import numpy as np
+import xlrd
 from string import Template
+
+class ParseError(BaseException):
+    pass
 
 
 def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, float, datetime.datetime]:
@@ -22,11 +26,10 @@ def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, floa
     :return: parsed data, epoch offset (difference between start of scoring and start of recording), startime (startime as a datetime.datetime)
     """
     if file.endswith("xls") or file.endswith("xlsx") or file.endswith(".csv"):
-        xl = pd.ExcelFile(file)
-        if 'GraphData' in xl.sheet_names:  # Then we have a mednick type scorefile
+        try:
             epochdict = _parse_grass_scorefile(file)
-        else:
-            raise ValueError('Unknown xlsx scorefile and not able to be parsed.')
+        except ParseError:
+            epochdict = _parse_choc_scorefile(file, stagemap)
 
     # these are the scoring files (txt)
     elif file.endswith(".txt"):
@@ -44,7 +47,7 @@ def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, floa
         epochdict = _hume_parse(file)
 
     elif file.endswith('.vrmk'):  # assume that all .mat are hume type
-        epochdict = _parse_vrmk_scorefile(file, stagemap)
+        epochdict = _parse_vrmk_scorefile(file, stagemap) #TODO test this!
 
     else:
         raise ValueError('ScoreFile not able to be parsed.')
@@ -273,6 +276,24 @@ def _nsrr_xml_parse(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
     return return_dict
 
 
+def _parse_choc_scorefile(file, stage_map):
+    """
+    Checks if scorefile is a choc style sleep scoring file, and parses if is
+    :param file: .csv file to parse
+    :param stage_map: stage mapping from choc to mednickdb
+    :return: false if not a choc type stagefile, or a dict with "epochoffset", 'epochstages' if it is.
+    """
+    data = pd.read_csv(file, header=None)
+    stages_col = 20
+    if data.shape[1] < stages_col:
+        raise ParseError('Not a choc type scorefile')
+    stages = data.iloc[:,stages_col].values
+    if not any([stage_key in stages for stage_key in stage_map.keys()]):
+        raise ParseError('Not a choc type scorefile')
+    return {"epochoffset": 0, 'epochstages': data.iloc[:, stages_col]}
+
+
+
 def _txtfile_select_parser_function(file):
     """
     Returns an integer determing which parse method to use
@@ -403,9 +424,16 @@ def _parse_vrmk_scorefile(file, stage_map_dict, epoch_len=pysleep_defaults.epoch
 def _parse_grass_scorefile(file):
     """
     Parse the grass type scorefile
+    Parse the grass type scorefile
     :param file: the file to parse
     :return:
     """
+    try:
+        xl = pd.ExcelFile(file)
+    except (TypeError, xlrd.biffh.XLRDError):
+        raise ParseError('Not a grass type scorefile')
+    if "GraphData" not in xl.sheet_names:
+        raise ParseError('Not a grass type scorefile')
     dict_obj = {"epochoffset": 0, 'epochstages': []}
 
     list_data = pd.read_excel(file, sheet_name="list")

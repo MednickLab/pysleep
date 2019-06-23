@@ -33,6 +33,19 @@ def test_extract_epochstages_from_scorefile():
     assert epochstages == correct_epochstages
 
 
+def test_choc_scorefile():
+    study_settings_file = yaml.safe_load(
+        open(os.path.join(os.path.dirname(__file__), "testfiles/study_settings/choc_type_study_settings.yaml"),
+             'rb'))
+    epoch_stages, epoch_offset, start_time = extract_epochstages_from_scorefile(
+        os.path.join(os.path.dirname(__file__), "testfiles/example_choc_scorefile.csv"),
+        study_settings_file['stage_map'])
+
+    assert epoch_stages[:300] == ['unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'n1', 'n1', 'n1', 'n1', 'n1', 'n1', 'n2', 'n2', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n2', 'wake', 'n2', 'n2', 'n2', 'n2', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake']
+    assert epoch_offset == 0
+    assert start_time is None
+
+
 def test_hume1_scorefile():
     study_settings_file = yaml.safe_load(
         open(os.path.join(os.path.dirname(__file__), "testfiles/study_settings/MednickHumeType_study_settings.yaml"),
