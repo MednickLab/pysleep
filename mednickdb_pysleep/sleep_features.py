@@ -51,8 +51,9 @@ def detect_spindles(edf_filepath: str,
     spindles_df.columns = [col_map[k] for k in spindles_df.columns]
     spindles_df['peak_time'] = spindles_df['peak_time'] - spindles_df['onset']
     spindles_df['description'] = 'spindle'
-    spindles_df['onset'] -= start_time
-    spindles_df = spindles_df.loc[spindles_df['onset'] >= 0, :]
+    if start_time is not None:
+        spindles_df['onset'] = spindles_df['onset'] - start_time
+        spindles_df = spindles_df.loc[spindles_df['onset'] >= 0, :]
     spindles_df = spindles_df.loc[(spindles_df['freq_peak'] > 11) & (spindles_df['freq_peak'] < 16),:]
     return spindles_df.sort_values('onset')
 
@@ -93,8 +94,9 @@ def detect_slow_oscillation(edf_filepath: str,
     sos_df['trough_time'] = sos_df['trough_time'] - sos_df['onset']
     sos_df['zero_time'] = sos_df['zero_time'] - sos_df['onset']
     sos_df['description'] = 'slow_osc'
-    sos_df['onset'] -= start_time
-    sos_df = sos_df.loc[sos_df['onset']>=0,:]
+    if start_time is not None:
+        sos_df['onset'] = sos_df['onset'] - start_time
+        sos_df = sos_df.loc[sos_df['onset']>=0,:]
     return sos_df.sort_values('onset')
 
 
@@ -122,7 +124,9 @@ def detect_rems(edf_filepath: str,
     onsets, _, _, _, _ = rem_detector.runDetectorCommandLine(edf_filepath, [rem_starts, rem_ends], algo, loc_chan, roc_chan)
     rem_df = pd.DataFrame({'onsets': onsets}, dtype=float)
     rem_df['description'] = 'rem_event'
-    rem_df['onset'] -= start_time
+    if start_time is not None:
+        start_time = 0
+    rem_df['onset'] = rem_df['onset'] - start_time
     rem_df = rem_df.loc[rem_df['onset']>=0,:]
     rem_df = rem_df.loc[rem_df['onset']<=end_time-start_time,:]
     return rem_df
