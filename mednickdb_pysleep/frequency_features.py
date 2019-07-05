@@ -42,6 +42,7 @@ def extract_band_power(edf_filepath: str,
     abs_power = math(power, operator_name='abs')
     chan_time_freq = abs_power.data[0]
     all_chans = np.ones((chan_time_freq.shape[0],), dtype=bool)
+    start_time = 0 if start_time is None else start_time
     time_axis = np.round(abs_power.axis['time'][0], 2) - start_time
     freq_axis = np.round(abs_power.axis['freq'][0], 2)
     chan_axis = abs_power.axis['chan'][0]
@@ -100,6 +101,7 @@ def assign_band_power_stage(band_power_per_epoch_df: pd.DataFrame,
         assert power_df.shape[0] >= len(epochstages), "Missmatch in number of epochs and power per epoch, epoch len correct?"
         power_df = power_df.iloc[0:len(epochstages), :]
         power_df.loc[:, 'stage'] = np.array(epochstages)
+        power_df.loc[:, 'stage_idx'] = np.arange(0,len(epochstages))
         cont.append(power_df)
     return pd.concat(cont, axis=0)
 

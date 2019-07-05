@@ -151,14 +151,17 @@ def assign_stage_to_feature_events(feature_events: pd.DataFrame,
     else:
         raise ValueError('epochstages is of unknown type. Should be dict or dataframe.')
 
+    stage_events['stage_idx'] = np.arange(0, stage_events.shape[0])
     def check_overlap(start, duration, events):
         end = start + duration
         for idx, stage in events.iterrows():
             if pysleep_utils.overlap(start, end, stage['onset'], stage['onset']+stage['duration']):
-                return stage['description']
-        return pysleep_defaults.unknown_stage
+                return stage.loc[['description', 'stage_idx']]
+        return pd.Series({'description':pysleep_defaults.unknown_stage, 'stage_idx':-1})
 
-    feature_events['stage'] = feature_events.apply(lambda x: check_overlap(x['onset'], x['duration'], stage_events), axis=1)
+    stage_events_to_cat = feature_events.apply(lambda x: check_overlap(x['onset'], x['duration'], stage_events), axis=1)
+    stage_events_to_cat = stage_events_to_cat.rename({'description': 'stage'}, axis=1)
+    feature_events = pd.concat([feature_events, stage_events_to_cat], axis=1, sort=False)
     return feature_events
 
 
