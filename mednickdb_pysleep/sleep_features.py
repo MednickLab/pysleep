@@ -11,23 +11,55 @@ if pysleep_defaults.load_matlab_detectors:
     import yetton_rem_detector
     rem_detector = yetton_rem_detector.initialize()
 
+def load_and_slice_data_for_feature_extraction(edf_filepath: str,
+                                               epochstages: List[str],
+                                               bad_segments: List[List[float]]=None,
+                                               start_offset: float = None,
+                                               end_offset: float = None,
+                                               chans_to_consider: List[str] = None,
+                                               epoch_len=pysleep_defaults.epoch_len,
+                                               stages_to_consider=pysleep_defaults.nrem_stages):
+    if start_offset is None:
+        start_offset = 0
+    if end_offset is not None:
+        last_good_epoch = int((end_offset-start_offset)/epoch_len)
+        epochstages = epochstages[0:last_good_epoch]
 
-def detect_spindles(edf_filepath: str,
-                    algo: str='Ferrarelli2007',
-                    chans_to_consider: List[str]=None,
-                    start_time: float=None,
-                    end_time: float=None)->pd.DataFrame:
+    d = Dataset(edf_filepath)
+
+    epochstages = pysleep_utils.convert_epochstages_to_eegevents(epochstages, start_offset=start_offset)
+    epochstages_to_consider = epochstages.loc[epochstages['description'].isin(stages_to_consider), :]
+    starts = epochstages_to_consider['onset'].tolist()
+    ends = (epochstages_to_consider['onset'] + epochstages_to_consider['duration']).tolist()
+
+    if bad_segments is not None:
+        starts = starts + bad_segments[1]
+        sorted(starts)
+        ends = bad_segments[0] + ends
+        sorted(ends)
+
+    for i, (s, e) in enumerate(zip(starts[::-1].copy(), ends[::-1].copy())):
+        if s == e:
+            del starts[i]
+            del ends[i]
+
+    data = d.read_data(begtime=starts, endtime=ends, chan=chans_to_consider)
+    data.starts = starts
+    data.ends = ends
+    return data
+
+def detect_spindles(data: Dataset, algo: str = 'Wamsley2012',
+                    start_offset: float = None) ->pd.DataFrame:
     """
     Detect spindles locations in an edf file for each channel.
     :param edf_filepath: path of edf file to load. Will maybe work with other filetypes. untested.
     :param algo: which algorithm to use to detect spindles. See wonambi methods: https://wonambi-python.github.io/gui/methods.html
     :param chans_to_consider: which channels to detect spindles on, must match edf channel names
-    :param start_time: time of edf to begin detection, onset is measured from this
-    :param end_time: time of edf to end detection
+    :param bad_segments:
+    :param start_offset: offset between first epoch and edf - onset is measured from this
     :return: returns dataframe of spindle locations, with columns for chan, start, duration and other spindle properties, sorted by onset
     """
-    d = Dataset(edf_filepath)
-    data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
+
     detection = DetectSpindle(algo)
     spindles_detected = detection(data)
     spindles_df = pd.DataFrame(spindles_detected.events, dtype=float)
@@ -51,29 +83,23 @@ def detect_spindles(edf_filepath: str,
     spindles_df.columns = [col_map[k] for k in spindles_df.columns]
     spindles_df['peak_time'] = spindles_df['peak_time'] - spindles_df['onset']
     spindles_df['description'] = 'spindle'
-    if start_time is not None:
-        spindles_df['onset'] = spindles_df['onset'] - start_time
+    if start_offset is not None:
+        spindles_df['onset'] = spindles_df['onset'] - start_offset
         spindles_df = spindles_df.loc[spindles_df['onset'] >= 0, :]
     spindles_df = spindles_df.loc[(spindles_df['freq_peak'] > 11) & (spindles_df['freq_peak'] < 16),:]
     return spindles_df.sort_values('onset')
 
 
-def detect_slow_oscillation(edf_filepath: str,
-                            algo: str='AASM/Massimini2004',
-                            chans_to_consider: List[str]=None,
-                            start_time: float=None,
-                            end_time: float=None)->pd.DataFrame:
+def detect_slow_oscillation(data: Dataset, algo: str = 'AASM/Massimini2004', start_offset: float = None) ->pd.DataFrame:
     """
     Detect slow waves (slow oscillations) locations in an edf file for each channel
     :param edf_filepath: path of edf file to load. Will maybe work with other filetypes. untested.
     :param algo: which algorithm to use to detect spindles. See wonambi methods: https://wonambi-python.github.io/gui/methods.html
     :param chans_to_consider: which channels to detect spindles on, must match edf channel names
-    :param start_time: time of edf to begin detection, onset is measured from this
-    :param end_time: time of edf to end detection
+    :param bad_segments:
+    :param start_offset: offset between first epoch and edf - onset is measured from this
     :return: returns dataframe of spindle locations, with columns for chan, start, duration and other spindle properties, sorted by onset
     """
-    d = Dataset(edf_filepath)
-    data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
     detection = DetectSlowWave(algo)
     sos_detected = detection(data)
     sos_df = pd.DataFrame(sos_detected.events, dtype=float)
@@ -94,33 +120,29 @@ def detect_slow_oscillation(edf_filepath: str,
     sos_df['trough_time'] = sos_df['trough_time'] - sos_df['onset']
     sos_df['zero_time'] = sos_df['zero_time'] - sos_df['onset']
     sos_df['description'] = 'slow_osc'
-    if start_time is not None:
-        sos_df['onset'] = sos_df['onset'] - start_time
+    if start_offset is not None:
+        sos_df['onset'] = sos_df['onset'] - start_offset
         sos_df = sos_df.loc[sos_df['onset']>=0,:]
     return sos_df.sort_values('onset')
 
 
 def detect_rems(edf_filepath: str,
-                loc_chan: str,
-                roc_chan: str,
-                epochstages: List[str],
+                data: Dataset,
+                loc_chan: str = 'LOC',
+                roc_chan: str = 'ROC',
                 start_time=0,
-                end_time = 0,
-                rem_stage_to_consider: str=pysleep_defaults.rem_stage,
                 algo: str='HatzilabrouEtAl'):
     """
     Detect rapid eye movement events in an edf file from loc and roc channels (only REM stage considered). Sample Freq must be converted to 256Hz!
     :param edf_filepath: path of edf file to load. Will maybe work with other filetypes. untested.
     :param algo: which algorithm to use to detect spindles. See wonambi methods: https://wonambi-python.github.io/gui/methods.html
     :param chans_to_consider: which channels to detect spindles on, must match edf channel names
-    :param start_time: time of edf to begin detection, onset is measured from this
-    :param end_time: time of edf to end detection
+    :param epochstages: list of stages for each epoch
+    :param start_offset: offset between first epoch and edf - onset is measured from this
     :return: returns dataframe of spindle locations, with columns for chan, start, duration and other spindle properties, sorted by onscdet
     """
-    all_stage_start_and_ends = pysleep_utils.convert_epochstages_to_eegevents(epochstages)
-    rem_start_and_ends = all_stage_start_and_ends.loc[all_stage_start_and_ends['description'] == rem_stage_to_consider, :]
-    rem_starts = (rem_start_and_ends['onset']*256).tolist() #must be in samples, must be 256Hz.
-    rem_ends = ((rem_start_and_ends['onset'] + rem_start_and_ends['duration'])*256).tolist()
+    rem_starts = [d*256 for d in data.starts] #must be in samples, must be 256Hz.
+    rem_ends = [d*256 for d in data.ends]
     onsets, _, _, _, _ = rem_detector.runDetectorCommandLine(edf_filepath, [rem_starts, rem_ends], algo, loc_chan, roc_chan)
     rem_df = pd.DataFrame({'onsets': onsets}, dtype=float)
     rem_df['description'] = 'rem_event'
@@ -128,68 +150,73 @@ def detect_rems(edf_filepath: str,
         start_time = 0
     rem_df['onset'] = rem_df['onset'] - start_time
     rem_df = rem_df.loc[rem_df['onset']>=0,:]
-    rem_df = rem_df.loc[rem_df['onset']<=end_time-start_time,:]
     return rem_df
 
 
 def assign_stage_to_feature_events(feature_events: pd.DataFrame,
                                    epochstages: list,
-                                   epoch_stage_offset: int = 0
+                                   epoch_stage_offset: int = 0,
+                                   epoch_len=pysleep_defaults.epoch_len,
                                    ) -> pd.DataFrame:
     """
     :param feature_events: events dataframe, with start and duration columns
     :param epochstages: stages, where the first stage starts at 0 seconds on the events timeline
     :param epoch_stage_offset: the offset in seconds between the epoch stages and the features events
-     (i.e. when epoch stages start compared to edf's start)
+     (i.e. when epoch stages start compared to the time where feature_events['onset']==0)
     :return: the modified events df, with a stage column
     """
     feature_events['onset'] -= epoch_stage_offset
     if isinstance(epochstages, list):
-        stage_events = pysleep_utils.convert_epochstages_to_eegevents(epochstages)
-    elif isinstance(epochstages, pd.DataFrame):
-        stage_events = epochstages
+        stage_events = pd.DataFrame({'onset':np.arange(0, len(epochstages))*epoch_len,
+                                     'stage_idx':np.arange(0, len(epochstages)),
+                                     'stage':epochstages})
+        stage_events['duration'] = epoch_len
     else:
-        raise ValueError('epochstages is of unknown type. Should be dict or dataframe.')
+        raise ValueError('epochstages is of unknown type. Should be list.')
 
-    stage_events['stage_idx'] = np.arange(0, stage_events.shape[0])
     def check_overlap(start, duration, events):
         end = start + duration
         for idx, stage in events.iterrows():
             if pysleep_utils.overlap(start, end, stage['onset'], stage['onset']+stage['duration']):
-                return stage.loc[['description', 'stage_idx']]
-        return pd.Series({'description':pysleep_defaults.unknown_stage, 'stage_idx':-1})
+                return stage.loc[['stage', 'stage_idx']]
+        return pd.Series({'stage':pysleep_defaults.unknown_stage, 'stage_idx':-1})
 
     stage_events_to_cat = feature_events.apply(lambda x: check_overlap(x['onset'], x['duration'], stage_events), axis=1)
-    stage_events_to_cat = stage_events_to_cat.rename({'description': 'stage'}, axis=1)
     feature_events = pd.concat([feature_events, stage_events_to_cat], axis=1, sort=False)
     return feature_events
 
 
 def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
-                                      epoch_stages: list,
+                                      mins_in_stage_df: pd.DataFrame=None,
                                       stages_to_consider: List[str]=pysleep_defaults.stages_to_consider,
                                       channels: List[str]=None,
                                       av_across_channels: bool=True):
     """
     Calculate the density, and mean of other important sleep feature variables (amp, power, peak freq, etc)
     :param feature_events: dataframe of a single event type (spindle, slow osc, rem, etc)
-    :param epoch_stages: epoch_stages list, the list of stages for each 30 second interval
     :param stages_to_consider: The stages to extract for, i.e. you probably want to leave out REM when doing spindles
-    :param channels: if None consider all channels THAT HAS DETECTED SPINDLES, to include 0 density and count for
+    :param channels: if None consider all channels THAT HAVE DETECTED SPINDLES, to include 0 density and count for
         channels that have no spindles, make sure to inlcude this channel list argument.
     :param av_across_channels: whether to average across channels, or return separate for each channel
     :return: dataframe of with len(stage)*len(chan) or len(stage) rows with density + mean of each feature as columns
     """
-    mins_in_stage, _, _ = sleep_stage_architecture(epoch_stages, stages_to_consider=stages_to_consider)
     if 'quartile' in feature_events.columns:
+        by_quart = True
         index_vars = ['stage','description', 'quartile']
     else:
         index_vars = ['stage','description']
+        by_quart = False
     pos_non_var_cols = ['stage', 'onset', 'description', 'chan'] + index_vars
     non_var_cols = [col for col in feature_events.columns if col in pos_non_var_cols]
     features_per_stage_cont = []
     for stage_and_other_idx, feature_data_per_stage in feature_events.groupby(index_vars):
         stage = stage_and_other_idx[0]
+        if by_quart:
+            quart = stage_and_other_idx[-1]
+            mins_in_stage = mins_in_stage_df.loc[(quart,stage),'minutes_in_stage']
+        else:
+            print(mins_in_stage_df)
+            mins_in_stage = mins_in_stage_df.loc[stage, 'minutes_in_stage']
         if stage in stages_to_consider:
             per_chan_cont = []
             channels_without_events = set(feature_data_per_stage['chan'].unique() if channels is None else channels)
@@ -198,7 +225,7 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
                     channels_without_events = channels_without_events - {chan}
                     features_per_chan = feature_data_per_stage_chan.drop(non_var_cols, axis=1).agg(np.nanmean)
                     features_per_chan.index = ['av_'+col for col in features_per_chan.index]
-                    features_per_chan['density'] = feature_data_per_stage_chan.shape[0] / mins_in_stage[stage]
+                    features_per_chan['density'] = feature_data_per_stage_chan.shape[0] / mins_in_stage
                     features_per_chan['count'] = feature_data_per_stage_chan.shape[0]
                     features_per_chan['chan'] = chan
                     per_chan_cont.append(features_per_chan)

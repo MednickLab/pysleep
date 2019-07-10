@@ -1,7 +1,9 @@
 import sys, os
 file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, file_dir + '/../mednickdb_pysleep/')
-from sleep_features import detect_spindles, detect_slow_oscillation, assign_stage_to_feature_events, sleep_feature_variables_per_stage, detect_rems
+from sleep_features import detect_spindles, \
+    detect_slow_oscillation, assign_stage_to_feature_events, \
+    sleep_feature_variables_per_stage, detect_rems, load_and_slice_data_for_feature_extraction
 import time
 import pytest
 import pickle
@@ -16,7 +18,14 @@ def test_spindle_detection():
     edf = os.path.join(file_dir, 'testfiles/example1_sleep_rec.edf')
     study_settings = yaml.safe_load(open(os.path.join(file_dir, 'testfiles/example1_study_settings.yaml'), 'rb'))
     chans_to_consider = list(study_settings['known_eeg_chans'].keys())
-    spindles = detect_spindles(edf_filepath=edf, algo='Ferrarelli2007', chans_to_consider=chans_to_consider)
+    epochstages_file = file_dir + '/testfiles/example1_epoch_stages.pkl'
+    epochstages = pickle.load(open(epochstages_file, 'rb'))
+    data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
+                                                      epochstages=epochstages,
+                                                      start_offset=0,
+                                                      end_offset=3000,
+                                                      chans_to_consider=chans_to_consider)
+    spindles = detect_spindles(data=data, algo='Ferrarelli2007', start_offset=0)
     end_time = time.time()
     print('Spindles took', end_time-start_time)
     assert spindles is not None
@@ -29,7 +38,14 @@ def test_so_detection():
     edf = os.path.join(file_dir,'testfiles/example1_sleep_rec.edf')
     study_settings = yaml.safe_load(open(os.path.join(file_dir, 'testfiles/example1_study_settings.yaml'), 'rb'))
     chans_to_consider = list(study_settings['known_eeg_chans'].keys())
-    slow_oscillations = detect_slow_oscillation(edf_filepath=edf, chans_to_consider=chans_to_consider)
+    epochstages_file = file_dir + '/testfiles/example1_epoch_stages.pkl'
+    epochstages = pickle.load(open(epochstages_file, 'rb'))
+    data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
+                                                      epochstages=epochstages,
+                                                      start_offset=0,
+                                                      end_offset=3000,
+                                                      chans_to_consider=chans_to_consider)
+    slow_oscillations = detect_slow_oscillation(data=data, start_offset=0)
     end_time = time.time()
     print('SO took', end_time - start_time)
     assert slow_oscillations is not None
@@ -38,11 +54,14 @@ def test_so_detection():
 
 # def test_rem_detection():
 #     edf = os.path.join(file_dir, 'testfiles/example2_sleep_rec.edf')
-#     study_settings = yaml.safe_load(open(os.path.join(file_dir, 'testfiles/example1_study_settings.yaml'), 'rb'))
-#     chans_to_consider = list(study_settings['known_eog_chans'].keys())
 #     epochstages_file = file_dir + '/testfiles/example2_epoch_stages.pkl'
-#     epoch_stages = pickle.load(open(epochstages_file, 'rb'))
-#     rem_locs_df = detect_rems(edf, 'LOC', 'ROC', epoch_stages)
+#     epochstages = pickle.load(open(epochstages_file, 'rb'))
+#     data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
+#                                                       epochstages=epochstages,
+#                                                       chans_to_consider=['Left Eye-A2','Right Eye-A1'],
+#                                                       stages_to_consider=['rem']
+#                                                       )
+#     rem_locs_df = detect_rems(edf, data, 'Left Eye-A2', 'Right Eye-A1')
 #     assert rem_locs_df is not None
 #     assert rem_locs_df.shape[0] > 0
 

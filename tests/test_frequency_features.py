@@ -4,6 +4,7 @@ sys.path.insert(0, file_dir + '/../mednickdb_pysleep/')
 from frequency_features import assign_band_power_stage, extract_band_power, extract_band_power_per_epoch
 from pysleep_defaults import sleep_stages
 from pysleep_utils import pd_to_xarray_datacube
+import numpy as np
 import pytest
 import pickle
 import yaml
@@ -30,11 +31,13 @@ def test_extract_band_power_per_epoch():
 def test_extract_band_power_per_stage():
     epochstages_file = os.path.join(file_dir,'testfiles/example1_epoch_stages.pkl')
     epoch_stages = pickle.load(open(epochstages_file, 'rb'))
-    band_power_w_stage = assign_band_power_stage(pytest.band_power_per_epoch, epoch_stages)
+    band_power_w_stage = assign_band_power_stage(pytest.band_power_per_epoch, epoch_stages, bad_epochs=[1,5])
+
+    assert all(np.isnan(band_power_w_stage.loc[band_power_w_stage['stage_idx'].isin([1,5]), 'power']))
 
     band_power_w_stage = band_power_w_stage.drop(['onset','duration'], axis=1)
     band_power_w_stage = band_power_w_stage.loc[band_power_w_stage['stage'].isin(sleep_stages), :]
-    band_power_per_stage = band_power_w_stage.groupby(['chan', 'band', 'stage']).mean().reset_index()
+    band_power_per_stage = band_power_w_stage.groupby(['chan', 'band', 'stage']).agg(np.nanmean).reset_index()
 
     assert band_power_per_stage.shape[0] == 2*8*len(sleep_stages)
 

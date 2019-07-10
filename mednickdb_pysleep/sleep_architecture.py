@@ -1,25 +1,75 @@
 import numpy as np
-from mednickdb_pysleep import pysleep_defaults
-
+from mednickdb_pysleep import pysleep_defaults, pysleep_utils
+import pandas as pd
 
 def sleep_stage_architecture(epoch_stage,
                              epoch_len=pysleep_defaults.epoch_len,
-                             stages_to_consider=pysleep_defaults.stages_to_consider):
+                             stages_to_consider=pysleep_defaults.stages_to_consider,
+                             epochs_to_ignore=None,
+                             per_quartile=False,
+                             return_type='dict'):
     """
     Calculate the traditional measures of sleep (mins in stage, percent in stage, total minutes of sleep (total sleep time))
     :param epoch_stage: the pattern of sleep stages with self transitions, e.g. [0 0 1 1 1 2 2 2 1]
     :param epoch_len: length of an epoch in seconds
-    :param stages_to_consider: which stages we should use for calcualtions, will default to sleep stages and wake (0,1,2,3,4)
+    :param stages_to_consider: which stages we should use for calcualtions, will default to sleep stages and wake (0,1,2,3,4) all other stages will be ignored and will not count towards metrics
     :return: a tuple of (minutes in stage, percent in stage, total minutes for stages to consider)
     """
-    unique, counts = np.unique(epoch_stage, return_counts=True)
-    mins_in_stage = {s: 0 for s in stages_to_consider}
-    for u, c in zip(unique, counts):
-        if u in stages_to_consider:
-            mins_in_stage[u] = c*epoch_len/60
-    total_minutes = np.nansum([counts for stage, counts in mins_in_stage.items()])
-    percent_in_stage = {k: 100 * v / total_minutes if total_minutes else 0 for k, v in mins_in_stage.items()}
-    return mins_in_stage, percent_in_stage, total_minutes
+    missing_stages = [stage for stage in stages_to_consider if stage not in epoch_stage]
+
+    df = pd.DataFrame({'stage':epoch_stage}).reset_index().rename({'index':'stage_idx'}, axis=1)
+    df['onset'] = df['stage_idx']*epoch_len
+    df['duration'] = epoch_len
+
+    df = df.loc[df['stage'].isin(stages_to_consider),:]
+
+    def to_dict(df, colname):
+        return {l: df.xs(l)[colname].to_dict() for l in df.index.levels[0]}
+
+    if per_quartile:
+        df, _ = pysleep_utils.assign_quartiles(df, epoch_stage)
+
+    if epochs_to_ignore is not None:
+        df = df.loc[~df['stage_idx'].isin(epochs_to_ignore),:]
+
+    if per_quartile:
+        df_out = df.groupby(['quartile', 'stage']).agg({'duration':np.nansum})
+        df_out['minutes_in_stage'] = df_out['duration'] / 60
+        df_total_mins = df_out.groupby(['quartile']).agg({'minutes_in_stage':np.nansum})
+        df_total_mins.columns = ['total_minutes']
+        df_out = df_out.join(df_total_mins)
+        for q, quart_data in df_out.groupby('quartile'):
+            for stage in stages_to_consider:
+                if stage not in quart_data.index.get_level_values(1).tolist():
+                    df_out.ix[(q, stage), 'total_minutes'] = df_total_mins.loc[q,'total_minutes']
+                    df_out.ix[(q, stage), 'minutes_in_stage'] = 0
+
+    else:
+        df_out = df.groupby(['stage']).agg({'duration': np.nansum})
+        df_out['minutes_in_stage'] = df_out['duration'] / 60
+        df_out['total_minutes'] = df_out['minutes_in_stage'].agg(np.nansum)
+        for stage in stages_to_consider:
+            if stage not in df_out.index.tolist():
+                df_out.loc[stage, 'total_minutes'] = df_out['total_minutes'][0]
+                df_out.loc[stage, 'minutes_in_stage'] = 0
+
+
+    df_out = df_out.drop('duration', axis=1)
+    df_out['percent'] = 100*df_out['minutes_in_stage']/df_out['total_minutes']
+
+    if return_type == 'dataframe':
+        return df_out
+    elif return_type == 'dict':
+        if per_quartile:
+            return to_dict(df_out,'minutes_in_stage'), \
+                   to_dict(df_out, 'percent'), \
+                   df_out.reset_index().drop('stage', axis=1).set_index('quartile')['total_minutes'].to_dict()
+        else:
+            return df_out['minutes_in_stage'].to_dict(), \
+                   df_out['percent'].to_dict(), \
+                   df_out['total_minutes'].reset_index(drop=True).drop_duplicates().values.tolist()[0]
+    else:
+        raise ValueError('return type is unknown')
 
 
 def sleep_efficiency(mins_in_stage, total_minutes, wake_stages=pysleep_defaults.wake_stages_to_consider):

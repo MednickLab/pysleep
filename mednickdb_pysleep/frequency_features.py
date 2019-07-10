@@ -35,7 +35,7 @@ def extract_band_power(edf_filepath: str,
 
     d = Dataset(edf_filepath)
     assert start_time is None or start_time >= 0
-    assert end_time is None or end_time <= d.header['n_samples']/d.header['s_freq'], \
+    assert (end_time is None) or (end_time <= d.header['n_samples']/d.header['s_freq']), \
         "end time ("+ str(end_time) +") larger than record end!"+str(d.header['n_samples']/d.header['s_freq'])
     data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
     power = timefrequency(data, method='spectrogram')
@@ -70,14 +70,11 @@ def extract_band_power(edf_filepath: str,
 
 
 def extract_band_power_per_epoch(band_power_df: pd.DataFrame,
-                                 epoch_offset: float=0,
                                  epoch_len: float=pysleep_defaults.epoch_len) -> pd.DataFrame:
     """
     Resample the bandpower df so that its an average per epoch
     :param band_power_df: band power df outputted from extract_band_power
     :param epoch_len: the new epoch len
-    :param epoch_offset: the difference in seconds from when you want your sleep epochs to start compared to
-    band power epochs (this is probably the differnece between epoch stsges and edf start)
     :return: resampled df
     """
     band_power_df['onset'] = band_power_df['onset'].apply(lambda x: pd.Timedelta(seconds=x))
@@ -89,11 +86,12 @@ def extract_band_power_per_epoch(band_power_df: pd.DataFrame,
 
 
 def assign_band_power_stage(band_power_per_epoch_df: pd.DataFrame,
-                            epochstages: list) -> Union[pd.DataFrame, dict]:
+                            epochstages: list, bad_epochs: list=[]) -> Union[pd.DataFrame, dict]:
     """
     Extract band power per stage as a dataframe or dict
     :param band_power_per_epoch_df: Chan by Epoch by Band dataframe from extract_band_power_per_epoch
     :param epochstages: stages corresponding to each epoch
+    :param bad_epochs: epochs that contain artifacts and power is therefore incorrect (and will be set nan)
     :return: band power per stage
     """
     cont = []
@@ -103,6 +101,11 @@ def assign_band_power_stage(band_power_per_epoch_df: pd.DataFrame,
         power_df.loc[:, 'stage'] = np.array(epochstages)
         power_df.loc[:, 'stage_idx'] = np.arange(0,len(epochstages))
         cont.append(power_df)
-    return pd.concat(cont, axis=0)
+
+    all_power_df = pd.concat(cont, axis=0)
+    all_power_df['bad_epoch'] = False
+    all_power_df.loc[all_power_df['stage_idx'].isin(bad_epochs),'power'] = np.nan
+    all_power_df.loc[all_power_df['stage_idx'].isin(bad_epochs),'bad_epoch'] = True
+    return all_power_df
 
 

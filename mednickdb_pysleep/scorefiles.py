@@ -12,6 +12,7 @@ import mne
 from typing import Tuple
 import numpy as np
 import xlrd
+import pytz
 from string import Template
 
 class ParseError(BaseException):
@@ -271,7 +272,7 @@ def _nsrr_xml_parse(file, stage_map_dict, epoch_len=pysleep_defaults.epoch_len):
     return_dict = {}
     return_dict['epochstages'] = list(annot_resampled['description'].values)
     return_dict['epochoffset'] = annot_resampled['onset'].values[0]
-    return_dict['starttime'] = datetime.datetime.strptime(dict_xml['ClockTime'][0].split(' ')[-1], '%H.%M.%S')
+    return_dict['starttime'] = datetime.datetime.strptime(dict_xml['ClockTime'][0].split(' ')[-1], '%H.%M.%S').replace(year=2000)
 
     return return_dict
 

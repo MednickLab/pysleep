@@ -18,6 +18,8 @@ def convert_epochstages_to_eegevents(epochstages: List[str], epoch_len: int=pysl
     :param start_offset: the offset of the first epoch from the edf that these stages came from, in seconds
     :return: converted stage info as a pd.DataFrame
     """
+    if start_offset is None:
+        start_offset = 0
     stages = []
     durations = []
     for stage, group in groupby(epochstages):

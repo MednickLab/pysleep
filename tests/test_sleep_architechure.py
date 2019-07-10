@@ -18,6 +18,12 @@ def test_sleep_arch():
     tst = total_sleep_time(correct_ans_minutes, wake_stages=[0])
     assert(tst == 6)
 
+    minutes_out, perc_out, total_mins = sleep_stage_architecture(data['epochstage'], stages_to_consider=(0, 1, 2, 3, 4), per_quartile=True)
+    correct_ans_minutes = {'Q1': {0: 1.5, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0}, 'Q2': {1: 1.5, 0: 0.0, 2: 0.0, 3: 0.0, 4: 0.0}, 'Q3': {2: 1.5, 3: 1.0, 0: 0.0, 1: 0.0, 4: 0.0}, 'Q4': {3: 0.5, 4: 1.5, 0: 0.0, 1: 0.0, 2: 0.0}}
+    assert (minutes_out == correct_ans_minutes)
+    assert (total_mins == {'Q1': 1.5, 'Q2': 1.5, 'Q3': 2.5, 'Q4': 2.0})
+    assert (perc_out == {'Q1': {0: 100.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0}, 'Q2': {1: 100.0, 0: 0.0, 2: 0.0, 3: 0.0, 4: 0.0}, 'Q3': {2: 60.0, 3: 40.0, 0: 0.0, 1: 0.0, 4: 0.0}, 'Q4': {3: 25.0, 4: 75.0, 0: 0.0, 1: 0.0, 2: 0.0}})
+
 
 def test_sleep_fragmentation():
     data = {'epochstage': [0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 2, 3, 2, 0, 1, 2, 4]}
