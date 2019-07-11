@@ -41,7 +41,7 @@ def employ_buckelmueller(edf_filepath, epochstages, start_offset=None,
     return np.unique(bad_epochs).tolist()
 
 
-def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_consider=None, return_events=False, std_threshold=2):
+def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_consider=None, return_events=False, hjorth_threshold=2):
     edf = mne.io.read_raw_edf(edf_filepath, preload=True)
     if chans_to_consider is not None:
         edf = edf.drop_channels([chan for chan in edf.ch_names if chan not in chans_to_consider])
@@ -72,7 +72,7 @@ def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_con
     bad_epochs = []
     for meas in [epoch_chan_rms, epoch_chan_activity, epoch_chan_mobility, epoch_chan_complexity]:
         mean_meas = np.nanmean(meas, axis=0)
-        std_meas = std_threshold*np.nanstd(meas, axis=0)
+        std_meas = hjorth_threshold*np.nanstd(meas, axis=0)
 
         for mean_chan, std_chan in zip(mean_meas, std_meas):
             bad_epochs_per_meas = np.any((meas > mean_chan+std_chan) | (meas < mean_chan-std_chan), axis=1)
@@ -86,14 +86,18 @@ def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_con
 
 def detect_artifacts(edf_filepath, epochstages,
                      start_offset=None, end_offset=None, chans_to_consider=None,
-                     hjorth_std_threshold=2, delta_threshold=2.5, beta_threshold=2):
+                     hjorth_threshold=2.5, delta_threshold=3.5, beta_threshold=3.5):
     bad_epochs = employ_buckelmueller(edf_filepath, epochstages,
                                       start_offset=start_offset,
                                       end_offset=end_offset,
-                                      chans_to_consider=chans_to_consider)
+                                      chans_to_consider=chans_to_consider,
+                                      beta_thresh=beta_threshold,
+                                      delta_thresh=delta_threshold
+                                      )
     bad_epochs += employ_hjorth(edf_filepath,
                                 start_offset=start_offset,
                                 end_offset=end_offset,
+                                hjorth_threshold=hjorth_threshold,
                                 chans_to_consider=chans_to_consider)
     return np.unique(bad_epochs).tolist()
 
