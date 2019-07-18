@@ -6,12 +6,13 @@ import numpy as np
 import scipy.interpolate
 from scipy.io import loadmat
 import datetime
-from mednickdb_pysleep import pysleep_defaults, pysleep_utils
+from mednickdb_pysleep import pysleep_defaults, pysleep_utils, edf_tools
 import wonambi.ioeeg.edf as wnbi
 import mne
 from typing import Tuple
 import numpy as np
 import xlrd
+import pickle
 import pytz
 from string import Template
 
@@ -47,8 +48,11 @@ def extract_epochstages_from_scorefile(file, stagemap) -> Tuple[np.ndarray, floa
     elif file.endswith('.mat'):  # assume that all .mat are hume type
         epochdict = _hume_parse(file)
 
-    elif file.endswith('.vrmk'):  # assume that all .mat are hume type
+    elif file.endswith('.vrmk'):  # no idea if this works... dont have a vmrk to test...
         epochdict = _parse_vrmk_scorefile(file, stagemap) #TODO test this!
+
+    elif file.endswith('.pkl'):  # assume that all .mat are hume type
+        return _parse_pkl_scorefile(file)
 
     else:
         raise ValueError('ScoreFile not able to be parsed.')
@@ -93,6 +97,10 @@ def score_wake_as_waso_wbso_wase(epochstages, wake_base='wake',
     return epochstages.tolist()
 
 
+def _parse_pkl_scorefile(pkl_obj):
+    return pickle.load(open(pkl_obj, 'rb'))
+
+
 def _hume_parse(file, epoch_len=pysleep_defaults.epoch_len):
     """
     Parse HUME type matlab file
@@ -118,40 +126,6 @@ def _hume_parse(file, epoch_len=pysleep_defaults.epoch_len):
         dict_obj['epochoffset'] += hume_dict['win'] * hume_dict['stageTime'][0]
 
     return dict_obj
-
-
-def _read_edf_annotations(fname, annotation_format="edf/edf+"):
-    """
-    Read EDF file annotations.
-    # CODE PROVIDED BY M N E TO READ KEMP FILES
-    :param fname: Path to file.
-    :param annotation_format: one of ['edf/edf+', 'edf++']
-    :return: annotations to be converted to epochstage format
-    """
-    with open(fname, 'r', encoding='utf-8',
-              errors='ignore') as annotions_file:
-        tal_str = annotions_file.read()
-
-    if "edf" in annotation_format:
-        if annotation_format == "edf/edf+":
-            exp = '(?P<onset>[+\-]\d+(?:\.\d*)?)' + \
-                  '(?:\x15(?P<duration>\d+(?:\.\d*)?))?' + \
-                  '(\x14(?P<description>[^\x00]*))?' + '(?:\x14\x00)'
-
-        elif annotation_format == "edf++":
-            exp = '(?P<onset>[+\-]\d+.\d+)' + \
-                  '(?:(?:\x15(?P<duration>\d+.\d+)))' + \
-                  '(?:\x14\x00|\x14(?P<description>.*?)\x14\x00)'
-
-        annot = [m.groupdict() for m in re.finditer(exp, tal_str)]
-        good_annot = pd.DataFrame(annot)
-        good_annot = good_annot.query('description != ""').copy()
-        good_annot.loc[:, 'duration'] = good_annot['duration'].astype(float)
-        good_annot.loc[:, 'onset'] = good_annot['onset'].astype(float)
-    else:
-        raise ValueError('Type not supported')
-
-    return good_annot
 
 
 def _resample_to_new_epoch_len(annot, new_epoch_len=pysleep_defaults.epoch_len):
@@ -188,19 +162,17 @@ def _parse_edf_scorefile(path, stage_map_dict, epoch_len=pysleep_defaults.epoch_
     edf = wnbi.Edf(path)
     dictObj['starttime'] = edf.hdr['start_time']
 
-    try: #type1
-        annot = _read_edf_annotations(path)
-    except ValueError: #type3
-        annot = _read_edf_annotations(path, annotation_format="edf++") #FIXME how to get edf++ ..?
+    annot = mne.read_annotations(path)
+    annot_df = edf_tools.mne_annotations_to_dataframe(annot)
 
-    assert annot.shape[0] > 0, "no sleep stage annotations found, this is probably an error"
+    assert annot_df.shape[0] > 0, "no sleep stage annotations found, this is probably an error"
 
-    valid_stages = annot['description'].isin(stage_map_dict.keys())
-    annot = annot.loc[valid_stages, :]
+    valid_stages = annot_df['description'].isin(stage_map_dict.keys())
+    annot_df = annot_df.loc[valid_stages, :]
 
-    annot = _resample_to_new_epoch_len(annot, epoch_len)
-    dictObj['epochstages'] = list(annot['description'].values)
-    dictObj['epochoffset'] = annot['onset'].values[0]
+    annot_df = _resample_to_new_epoch_len(annot_df, epoch_len)
+    dictObj['epochstages'] = list(annot_df['description'].values)
+    dictObj['epochoffset'] = annot_df['onset'].values[0]
 
     return dictObj
 

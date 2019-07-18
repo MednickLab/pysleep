@@ -3,13 +3,99 @@ from wonambi.detect import DetectSpindle, DetectSlowWave
 from mednickdb_pysleep import pysleep_utils
 from mednickdb_pysleep import pysleep_defaults
 from mednickdb_pysleep.sleep_architecture import sleep_stage_architecture
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Union
 import pandas as pd
 import numpy as np
+import warnings
 
 if pysleep_defaults.load_matlab_detectors:
     import yetton_rem_detector
     rem_detector = yetton_rem_detector.initialize()
+
+
+class EEGError(BaseException):
+    """Some error with EEG has occured"""
+    pass
+
+
+def extract_features(edf_filepath: str,
+                     epochstages: List[str],
+                     offset_between_epochstages_and_edf: Union[float, None],
+                     end_offset: Union[float, None],
+                     do_slow_osc: bool=True,
+                     do_spindles: bool=True,
+                     chans_for_spindles: List[str]=None,
+                     chans_for_slow_osc: List[str]=None,
+                     epochs_with_artifacts: List[int]=None,
+                     do_rem: bool=False,
+                     spindle_algo: str='Wamsley2012'):
+    """
+    Run full feature extraction (rem, spindles and SO) on an edf
+    :param edf_filepath: path to edf file
+    :param epochstages: epochstages list e.g. ['waso', 'waso', 'n1', 'n2', 'n2', etc]
+    :param offset_between_epochstages_and_edf: difference between the start of the epochstages and the edf in seconds
+    :param end_offset: end time to stop extraction for (seconds since start of edf)
+    :param do_slow_osc: whether to extract slow oscillations or not
+    :param do_spindles: whether to extract spindles or not
+    :param do_rem: whether to extract rem or not, note that matlab detectors must be turned on in pysleep_defaults
+    :param chans_for_spindles: which channels to extract for, can be empty list (no channels), None or all (all channels) or a list of channel names
+    :param chans_for_slow_osc: which channels to extract for, can be empty list (no channels), None or all (all channels) or a list of channel names
+    :param epochs_with_artifacts: idx of epochstages that are bad or should be skipped
+    :param spindle_algo: which spindle algo to run, see the list in Wonambi docs
+    :return: dataframe of all events, with description, stage, onset (seconds since epochstages start), duration, and feature properties
+    """
+    features_detected = []
+    start_offset = offset_between_epochstages_and_edf
+
+    chans_for_slow_osc = None if chans_for_slow_osc == 'all' else chans_for_slow_osc
+    chans_for_spindles = None if chans_for_spindles == 'all' else chans_for_spindles
+
+    if do_spindles:
+        data = load_and_slice_data_for_feature_extraction(edf_filepath=edf_filepath,
+                                                          epochstages=epochstages,
+                                                          start_offset=start_offset,
+                                                          bad_segments=epochs_with_artifacts,
+                                                          end_offset=end_offset,
+                                                          chans_to_consider=chans_for_spindles)
+        spindles = detect_spindles(data, start_offset=start_offset, algo=spindle_algo)
+        n_spindles = spindles.shape[0]
+        print('Detected', n_spindles, 'spindles')
+        spindles = assign_stage_to_feature_events(spindles, epochstages)
+        features_detected.append(spindles)
+
+    if do_slow_osc:
+        data = load_and_slice_data_for_feature_extraction(edf_filepath=edf_filepath,
+                                                          epochstages=epochstages,
+                                                          start_offset=start_offset,
+                                                          bad_segments=epochs_with_artifacts,
+                                                          end_offset=end_offset,
+                                                          chans_to_consider=chans_for_slow_osc)
+        sos = detect_slow_oscillation(data, start_offset=start_offset)
+        n_sos = sos.shape[0]
+        print('Detected',n_sos, 'spindles')
+        sos = assign_stage_to_feature_events(sos, epochstages)
+        features_detected.append(sos)
+
+    if do_rem:
+        if not pysleep_defaults.load_matlab_detectors:
+            warnings.warn('Requested REM, but matlab detectors are turned off. Turn on in pysleep defaults.')
+
+        try:
+            data = load_and_slice_data_for_feature_extraction(edf_filepath=edf_filepath,
+                                                              epochstages=epochstages,
+                                                              start_offset=start_offset,
+                                                              bad_segments = epochs_with_artifacts,
+                                                              end_offset=end_offset,
+                                                              chans_to_consider=['LOC','ROC'],
+                                                              stages_to_consider=['rem'])
+        except ValueError as e:
+            raise EEGError('LOC and ROC must be present in the record') from e
+        rems = detect_rems(edf_filepath=edf_filepath, data=data)
+        rems = assign_stage_to_feature_events(rems, epochstages)
+        features_detected.append(rems)
+
+    return pd.concat(features_detected, axis=0, sort=False)
+
 
 def load_and_slice_data_for_feature_extraction(edf_filepath: str,
                                                epochstages: List[str],
@@ -26,6 +112,10 @@ def load_and_slice_data_for_feature_extraction(edf_filepath: str,
         epochstages = epochstages[0:last_good_epoch]
 
     d = Dataset(edf_filepath)
+
+    eeg_data = d.read_data().data[0]
+    if not (1 < np.sum(np.abs(eeg_data))/eeg_data.size < 100):
+        raise EEGError("edf data should be in mV, please rescale units in edf file")
 
     epochstages = pysleep_utils.convert_epochstages_to_eegevents(epochstages, start_offset=start_offset)
     epochstages_to_consider = epochstages.loc[epochstages['description'].isin(stages_to_consider), :]
@@ -141,6 +231,8 @@ def detect_rems(edf_filepath: str,
     :param start_offset: offset between first epoch and edf - onset is measured from this
     :return: returns dataframe of spindle locations, with columns for chan, start, duration and other spindle properties, sorted by onscdet
     """
+    if data.header['s_freq'] != 256:
+        raise EEGError("edf should be 256Hz. Please resample.")
     rem_starts = [d*256 for d in data.starts] #must be in samples, must be 256Hz.
     rem_ends = [d*256 for d in data.ends]
     onsets, _, _, _, _ = rem_detector.runDetectorCommandLine(edf_filepath, [rem_starts, rem_ends], algo, loc_chan, roc_chan)
@@ -215,7 +307,6 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
             quart = stage_and_other_idx[-1]
             mins_in_stage = mins_in_stage_df.loc[(quart,stage),'minutes_in_stage']
         else:
-            print(mins_in_stage_df)
             mins_in_stage = mins_in_stage_df.loc[stage, 'minutes_in_stage']
         if stage in stages_to_consider:
             per_chan_cont = []

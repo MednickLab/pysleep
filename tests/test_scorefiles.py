@@ -59,6 +59,21 @@ def test_hume1_scorefile():
     assert start_time == datetime.strptime('2016-01-01 00:00:00', "%Y-%m-%d %H:%M:%S")
 
 
+def test_pkl_scorefile():
+    study_settings_file = yaml.safe_load(
+        open(os.path.join(os.path.dirname(__file__), "testfiles/study_settings/MednickHumeType_study_settings.yaml"),
+             'rb')) #this is actually not needed...
+    epoch_stages, epoch_offset, start_time = extract_epochstages_from_scorefile(
+        os.path.join(os.path.dirname(__file__), "testfiles/pkl_type_scorefile.pkl"),
+        study_settings_file['stage_map'])
+
+    epochs300 = ['unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'unknown', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'n1', 'n1', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'n1', 'n2', 'n1', 'n1', 'n1', 'n1', 'wake', 'n1', 'n2', 'n2', 'n2', 'n3', 'n3', 'n2', 'n3', 'n2', 'n2', 'n3', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'n2', 'n1', 'n1', 'n2', 'n2', 'n2', 'n3', 'n2', 'n2', 'n2', 'n2', 'n3', 'n3', 'n3', 'n3', 'n2', 'n3', 'n3', 'n3', 'n2', 'n3', 'n3', 'n2', 'n3', 'n3', 'wake', 'n2', 'n3', 'n3', 'n3', 'n2', 'n2', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n1', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n3', 'n2', 'n3', 'n3', 'n3', 'n3', 'n3', 'n2', 'n3', 'n3', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'wake', 'n1', 'wake', 'n1', 'n1', 'wake', 'n2', 'n2', 'wake', 'wake', 'wake', 'n1', 'n2', 'n2', 'n3', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n1', 'n1', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n3', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n3', 'n2', 'wake', 'wake', 'n1', 'n1', 'n2', 'n2', 'n2', 'n3', 'n2', 'n3', 'n2', 'n1', 'n3', 'n2', 'n2', 'n2', 'n3', 'n2', 'n2', 'n2', 'n2', 'n3', 'n3', 'n2', 'n3', 'n3', 'n2', 'n3', 'n3', 'n3', 'n3', 'n3', 'n3', 'n2', 'n2', 'rem', 'n2', 'rem', 'n2', 'rem', 'rem', 'rem', 'rem', 'rem', 'rem', 'rem', 'rem', 'rem', 'n1', 'rem', 'rem', 'rem', 'rem', 'rem', 'rem', 'rem', 'wake', 'n1', 'n1', 'n2', 'n2', 'n2', 'n2', 'n2', 'rem', 'rem', 'n2', 'n2', 'n2', 'n2', 'rem', 'n2', 'n1', 'rem', 'rem', 'n1', 'n2', 'n2', 'wake', 'n2', 'n1', 'n2', 'n2', 'n2', 'n2', 'n2', 'n3', 'n2', 'n2', 'n2', 'n2', 'n2', 'n3', 'n2', 'n2', 'n2', 'n2', 'n1', 'n1']
+
+    assert epochs300 == epoch_stages[0:300]
+    assert epoch_offset == 1.88412058372
+    assert start_time == datetime.strptime('2000-01-01 23:15:24', "%Y-%m-%d %H:%M:%S")
+
+
 def test_hume2_scorefile():
     study_settings_file = yaml.safe_load(
         open(os.path.join(os.path.dirname(__file__), "testfiles/study_settings/MednickHumeType_study_settings.yaml"),
@@ -500,7 +515,7 @@ def test_XML_scorefile():
                             'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'wake', 'n1', 'rem',
                             'rem', 'wake', 'n1', 'n1', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2', 'n2',
                             'n2', 'n2', 'n2', 'n2']
-    assert start_time == datetime.strptime('1900-01-01 20:33:32', "%Y-%m-%d %H:%M:%S")
+    assert start_time == datetime(2000, 1, 1, 20, 33, 32)
     assert epoch_offset == 0
 
 

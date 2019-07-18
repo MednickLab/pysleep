@@ -4,7 +4,7 @@ import numpy as np
 
 
 def employ_buckelmueller(edf_filepath, epochstages, start_offset=None,
-                         end_offset=None, chans_to_consider=None, delta_thresh=2.5, beta_thresh=2):
+                         end_offset=None, chans_to_consider=None, delta_thresh=2.5, beta_thresh=2.0):
 
     band_power = frequency_features.extract_band_power(edf_filepath=edf_filepath,
                                                        bands = {'delta': (0.75, 4.5),
@@ -33,7 +33,7 @@ def employ_buckelmueller(edf_filepath, epochstages, start_offset=None,
             end_idx = mid_idx + 7 if mid_idx + 7 < chan_data.shape[0] else chan_data.shape[0]
             slice_range = list(range(start_idx,end_idx))
             slice_range.remove(mid_idx)
-            data_slice = chan_data.iloc[slice_range,:].loc[:,['delta','beta']].mean()
+            data_slice = chan_data.iloc[slice_range,:].loc[:,['delta','beta']].agg(np.nanmean)
             epoch_slice = chan_data.iloc[mid_idx,:].loc[['delta','beta']]
             if any(epoch_slice > data_slice*[delta_thresh, beta_thresh]):
                 bad_epochs.append(band_power_piv['stage_idx'].iloc[mid_idx])
@@ -41,7 +41,7 @@ def employ_buckelmueller(edf_filepath, epochstages, start_offset=None,
     return np.unique(bad_epochs).tolist()
 
 
-def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_consider=None, return_events=False, hjorth_threshold=2):
+def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_consider=None, return_events=False, hjorth_threshold=2.0):
     edf = mne.io.read_raw_edf(edf_filepath, preload=True)
     if chans_to_consider is not None:
         edf = edf.drop_channels([chan for chan in edf.ch_names if chan not in chans_to_consider])
@@ -65,7 +65,7 @@ def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_con
     # Epoch length is 1.5 second
     epochs = mne.Epochs(edf, events, tmin=0., tmax=pysleep_defaults.epoch_len, baseline=None, detrend=0)
     epoch_chan_time_data = epochs.get_data()
-    epoch_chan_rms = np.sqrt(np.mean(epoch_chan_time_data**2, axis=2))
+    epoch_chan_rms = np.sqrt(np.nanmean(epoch_chan_time_data**2, axis=2))
     epoch_chan_activity = activity(epoch_chan_time_data)
     epoch_chan_mobility = mobility(epoch_chan_time_data)
     epoch_chan_complexity = complexity(epoch_chan_time_data)
@@ -86,7 +86,7 @@ def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_con
 
 def detect_artifacts(edf_filepath, epochstages,
                      start_offset=None, end_offset=None, chans_to_consider=None,
-                     hjorth_threshold=2.5, delta_threshold=3.5, beta_threshold=3.5):
+                     hjorth_threshold=3.5, delta_threshold=3.5, beta_threshold=3.5):
     bad_epochs = employ_buckelmueller(edf_filepath, epochstages,
                                       start_offset=start_offset,
                                       end_offset=end_offset,

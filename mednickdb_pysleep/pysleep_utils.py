@@ -5,7 +5,6 @@ from scipy.io import savemat
 from typing import List
 from mednickdb_pysleep import pysleep_defaults
 import os
-import yaml
 module_path = os.path.dirname(os.path.abspath(__file__))
 
 
