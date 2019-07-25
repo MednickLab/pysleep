@@ -5,13 +5,36 @@ from sleep_features import detect_spindles, \
     detect_slow_oscillation, assign_stage_to_feature_events, \
     sleep_feature_variables_per_stage, detect_rems, \
     load_and_slice_data_for_feature_extraction, extract_features
-from mednickdb_pysleep import sleep_architecture
+from process_sleep_record import extract_eeg_variables
+from sleep_architecture import sleep_stage_architecture
+from pysleep_defaults import load_matlab_detectors
+from mednickdb_pyapi.pyapi import MednickAPI
 import time
+
 import pytest
 import pickle
 import numpy as np
 import pandas as pd
 import yaml
+import os
+
+def test_rem_detection():
+    if load_matlab_detectors and os.name != 'nt':
+        edf = os.path.join(file_dir, 'testfiles/example2_sleep_rec.edf')
+        epochstages_file = file_dir + '/testfiles/example2_epoch_stages.pkl'
+        epochstages = pickle.load(open(epochstages_file, 'rb'))
+        print('Beginning rem detection, this may take sometime')
+        data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
+                                                          epochstages=epochstages,
+                                                          chans_to_consider=['Left Eye-A2','Right Eye-A1'],
+                                                          stages_to_consider=['rem']
+                                                          )
+        rem_locs_df = detect_rems(edf, data, 'Left Eye-A2', 'Right Eye-A1')
+        assert rem_locs_df is not None
+        assert rem_locs_df.shape[0] > 0
+        rem_locs_df = assign_stage_to_feature_events(rem_locs_df, epochstages)
+        assert np.all(rem_locs_df['stage'] == 'rem')
+        pytest.rem_locs_df = rem_locs_df
 
 
 def test_spindle_detection():
@@ -22,11 +45,25 @@ def test_spindle_detection():
     chans_to_consider = list(study_settings['known_eeg_chans'].keys())
     epochstages_file = file_dir + '/testfiles/example1_epoch_stages.pkl'
     epochstages = pickle.load(open(epochstages_file, 'rb'))
+
     data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
                                                       epochstages=epochstages,
-                                                      start_offset=0,
+                                                      bad_segments = [i for i,s in enumerate(epochstages) if s == 'n2'],
+                                                      epochoffset_secs=0,
                                                       end_offset=3000,
                                                       chans_to_consider=chans_to_consider)
+    spindles = detect_spindles(data=data, algo='Ferrarelli2007', start_offset=0)
+
+    spindles = assign_stage_to_feature_events(spindles, epochstages)
+    assert not any(spindles['stage'] == 'n2')
+
+
+    data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
+                                                      epochstages=epochstages,
+                                                      epochoffset_secs=0,
+                                                      end_offset=3000,
+                                                      chans_to_consider=chans_to_consider)
+
     spindles = detect_spindles(data=data, algo='Ferrarelli2007', start_offset=0)
     end_time = time.time()
     print('Spindles took', end_time-start_time)
@@ -44,7 +81,7 @@ def test_so_detection():
     epochstages = pickle.load(open(epochstages_file, 'rb'))
     data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
                                                       epochstages=epochstages,
-                                                      start_offset=0,
+                                                      epochoffset_secs=0,
                                                       end_offset=3000,
                                                       chans_to_consider=chans_to_consider)
     slow_oscillations = detect_slow_oscillation(data=data, start_offset=0)
@@ -63,7 +100,7 @@ def test_feature_extraction():
 
     features_df = extract_features(edf_filepath= edf,
                                    epochstages=epochstages,
-                                   offset_between_epochstages_and_edf=0,
+                                   epochoffset_secs=0,
                                    end_offset=3000,
                                    chans_for_spindles=chans_to_consider,
                                    chans_for_slow_osc=chans_to_consider,
@@ -75,23 +112,6 @@ def test_feature_extraction():
     assert np.all(features_sep.fillna(-1).values == features_df.fillna(-1).values)
 
 
-
-
-# def test_rem_detection():
-#     edf = os.path.join(file_dir, 'testfiles/example2_sleep_rec.edf')
-#     epochstages_file = file_dir + '/testfiles/example2_epoch_stages.pkl'
-#     epochstages = pickle.load(open(epochstages_file, 'rb'))
-#     data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
-#                                                       epochstages=epochstages,
-#                                                       chans_to_consider=['Left Eye-A2','Right Eye-A1'],
-#                                                       stages_to_consider=['rem']
-#                                                       )
-#     rem_locs_df = detect_rems(edf, data, 'Left Eye-A2', 'Right Eye-A1')
-#     assert rem_locs_df is not None
-#     assert rem_locs_df.shape[0] > 0
-#     pytest.rem_locs_df = rem_locs_df
-
-
 def test_density_and_mean_features_calculations():
     #TODO should check actual spindle averages (assuming deterministic spindle algo)
     epochstages_file = os.path.join(file_dir, 'testfiles/example1_epoch_stages.pkl')
@@ -100,8 +120,8 @@ def test_density_and_mean_features_calculations():
     channels = spindle_events['chan'].unique()
     stages = ['n2', 'n3']
 
-    mins_df = sleep_architecture.sleep_stage_architecture(epoch_stages,
-                                                          return_type='dataframe')
+    mins_df = sleep_stage_architecture(epoch_stages,
+                                       return_type='dataframe')
 
     features = sleep_feature_variables_per_stage(spindle_events,
                                                  mins_in_stage_df=mins_df,

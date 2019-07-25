@@ -16,7 +16,7 @@ def test_employ_buckelmueller():
     bad_epochs = employ_buckelmueller(edf_filepath=edf_filename,
                                       epochstages=epochstages,
                                       chans_to_consider=list(study_settings['known_eeg_chans'].keys()),
-                                      start_offset=0,
+                                      epochoffset_secs=0,
                                       end_offset=3000)
 
     assert len(bad_epochs) > 0
@@ -27,7 +27,7 @@ def test_employ_buckelmueller():
 def test_employ_hjorth():
     bad_epochs, events = employ_hjorth(edf_filepath=pytest.edf_filename,
                                chans_to_consider=list(pytest.study_settings['known_eeg_chans'].keys()),
-                               start_offset=0,
+                               epochoffset_secs=0,
                                end_offset=3000,
                                return_events=True)
     assert len(set(bad_epochs) - set(pytest.bad_epochs)) > 0

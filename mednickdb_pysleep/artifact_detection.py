@@ -1,15 +1,17 @@
 from mednickdb_pysleep import frequency_features, pysleep_defaults
 import mne
 import numpy as np
+from typing import List, Union, Tuple
+import pandas as pd
 
 
-def employ_buckelmueller(edf_filepath, epochstages, start_offset=None,
+def employ_buckelmueller(edf_filepath, epochstages, epochoffset_secs=None,
                          end_offset=None, chans_to_consider=None, delta_thresh=2.5, beta_thresh=2.0):
 
     band_power = frequency_features.extract_band_power(edf_filepath=edf_filepath,
                                                        bands = {'delta': (0.75, 4.5),
                                                                 'beta': (20, 40)},
-                                                       start_time=start_offset,
+                                                       epochoffset_secs=epochoffset_secs,
                                                        end_time=end_offset,
                                                        chans_to_consider=chans_to_consider,
                                                        epoch_len=pysleep_defaults.band_power_epoch_len)
@@ -41,14 +43,14 @@ def employ_buckelmueller(edf_filepath, epochstages, start_offset=None,
     return np.unique(bad_epochs).tolist()
 
 
-def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_consider=None, return_events=False, hjorth_threshold=2.0):
+def employ_hjorth(edf_filepath, epochoffset_secs=None, end_offset=None, chans_to_consider=None, return_events=False, hjorth_threshold=2.0):
     edf = mne.io.read_raw_edf(edf_filepath, preload=True)
     if chans_to_consider is not None:
         edf = edf.drop_channels([chan for chan in edf.ch_names if chan not in chans_to_consider])
 
-    if start_offset is None:
-        start_offset = 0
-    edf = edf.crop(tmin=start_offset, tmax=end_offset)
+    if epochoffset_secs is None:
+        epochoffset_secs = 0
+    edf = edf.crop(tmin=epochoffset_secs, tmax=end_offset)
     events = mne.make_fixed_length_events(edf, id=1, duration=pysleep_defaults.epoch_len)
 
     def activity(sig):
@@ -85,20 +87,30 @@ def employ_hjorth(edf_filepath, start_offset=None, end_offset=None, chans_to_con
 
 
 def detect_artifacts(edf_filepath, epochstages,
-                     start_offset=None, end_offset=None, chans_to_consider=None,
+                     epochoffset_secs=None, end_offset=None, chans_to_consider=None,
                      hjorth_threshold=3.5, delta_threshold=3.5, beta_threshold=3.5):
     bad_epochs = employ_buckelmueller(edf_filepath, epochstages,
-                                      start_offset=start_offset,
+                                      epochoffset_secs=epochoffset_secs,
                                       end_offset=end_offset,
                                       chans_to_consider=chans_to_consider,
                                       beta_thresh=beta_threshold,
                                       delta_thresh=delta_threshold
                                       )
     bad_epochs += employ_hjorth(edf_filepath,
-                                start_offset=start_offset,
+                                epochoffset_secs=epochoffset_secs,
                                 end_offset=end_offset,
                                 hjorth_threshold=hjorth_threshold,
                                 chans_to_consider=chans_to_consider)
     return np.unique(bad_epochs).tolist()
+
+
+def epochs_with_artifacts_to_event_df(epochs_with_artifacts: List[int],
+                                      epoch_len=pysleep_defaults.epoch_len,
+                                      seconds_between_epochstages_and_edf=0):
+    onsets = np.array(epochs_with_artifacts)*epoch_len + seconds_between_epochstages_and_edf
+    event_df = pd.DataFrame({'onset': onsets})
+    event_df['description'] = 'bad_epoch'
+    event_df['duration'] = epoch_len
+    return event_df
 
 

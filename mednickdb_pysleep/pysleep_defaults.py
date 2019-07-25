@@ -1,3 +1,4 @@
+import os
 # Default parameters for automatic parsing
 
 # General Sleep defaults:
@@ -33,12 +34,11 @@ default_freq_bands = {
 }
 band_power_epoch_len = 30
 
-
 # %% transition probability
 include_self_transitions = False
 
 # %% Turn or of off matlab detector functionality
-load_matlab_detectors = False
+load_matlab_detectors = os.name != 'nt'
 
 
 # Quartile ->

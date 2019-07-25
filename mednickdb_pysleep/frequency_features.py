@@ -10,7 +10,7 @@ import warnings
 def extract_band_power(edf_filepath: str,
                        bands: dict = pysleep_defaults.default_freq_bands,
                        chans_to_consider: List[str]=None,
-                       start_time: float=None,
+                       epochoffset_secs: float=None,
                        end_time: float=None,
                        epoch_len: int = pysleep_defaults.epoch_len) -> pd.DataFrame:
     """
@@ -27,23 +27,23 @@ def extract_band_power(edf_filepath: str,
             'beta': (13, 30)
         }
     :param chans_to_consider: which channels to consider
-    :param start_time: start time of the recording to extract band power for (when do epochs start), onset is measured from this
+    :param epochoffset_secs: start time of the recording to extract band power for (when do epochs start), onset is measured from this
     :param end_time: end time of the recording to extract band power for
     :param epoch_len: how long a time bin you want your power to be averaged over
     :return: chan_epoch_band as a numpy array, and times, bands, chans
     """
 
     d = Dataset(edf_filepath)
-    assert start_time is None or start_time >= 0
+    assert epochoffset_secs is None or epochoffset_secs >= 0
     assert (end_time is None) or (end_time <= d.header['n_samples']/d.header['s_freq']), \
         "end time ("+ str(end_time) +") larger than record end!"+str(d.header['n_samples']/d.header['s_freq'])
-    data = d.read_data(begtime=start_time, endtime=end_time, chan=chans_to_consider)
+    data = d.read_data(begtime=epochoffset_secs, endtime=end_time, chan=chans_to_consider)
     power = timefrequency(data, method='spectrogram')
     abs_power = math(power, operator_name='abs')
     chan_time_freq = abs_power.data[0]
     all_chans = np.ones((chan_time_freq.shape[0],), dtype=bool)
-    start_time = 0 if start_time is None else start_time
-    time_axis = np.round(abs_power.axis['time'][0], 2) - start_time
+    epochoffset_secs = 0 if epochoffset_secs is None else epochoffset_secs
+    time_axis = np.round(abs_power.axis['time'][0], 2) - epochoffset_secs
     freq_axis = np.round(abs_power.axis['freq'][0], 2)
     chan_axis = abs_power.axis['chan'][0]
     freq_binsize = freq_axis[1] - freq_axis[0]

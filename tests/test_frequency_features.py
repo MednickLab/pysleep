@@ -16,7 +16,7 @@ def test_extract_band_power():
     chans_to_consider = list(study_settings['known_eeg_chans'].keys())
     band_power_per_epoch = extract_band_power(edf_filepath=edf_filename,
                                               chans_to_consider=chans_to_consider,
-                                              start_time=0,
+                                              epochoffset_secs=0,
                                               end_time=3000,
                                               epoch_len=3)
     assert band_power_per_epoch.shape[0] == 2*100*10*8

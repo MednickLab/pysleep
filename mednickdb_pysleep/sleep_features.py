@@ -2,38 +2,56 @@ from wonambi import Dataset
 from wonambi.detect import DetectSpindle, DetectSlowWave
 from mednickdb_pysleep import pysleep_utils
 from mednickdb_pysleep import pysleep_defaults
-from mednickdb_pysleep.sleep_architecture import sleep_stage_architecture
+from mednickdb_pysleep.error_handling import EEGError
 from typing import List, Tuple, Dict, Union
 import pandas as pd
 import numpy as np
 import warnings
+import datetime
+import os
+import contextlib
+import sys
+import logging
+import inspect
 
-if pysleep_defaults.load_matlab_detectors:
-    import yetton_rem_detector
-    rem_detector = yetton_rem_detector.initialize()
+try:
+    logger = inspect.currentframe().f_back.f_globals['logger']
+except KeyError:
+    logger = logging.getLogger('errorlog')
 
+class DummyFile(object):
+    def write(self, x): pass
 
-class EEGError(BaseException):
-    """Some error with EEG has occured"""
-    pass
+@contextlib.contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    sys.stdout = DummyFile()
+    yield
+    sys.stdout = save_stdout
 
+if 'skip_rem' not in os.environ:
+    if pysleep_defaults.load_matlab_detectors:
+        import yetton_rem_detector
+        yetton_rem_detector.initialize_runtime(['-nojvm', '-nodisplay'])
+        rem_detector = yetton_rem_detector.initialize()
 
 def extract_features(edf_filepath: str,
                      epochstages: List[str],
-                     offset_between_epochstages_and_edf: Union[float, None],
-                     end_offset: Union[float, None],
+                     epochoffset_secs: Union[float, None]=None,
+                     end_offset: Union[float, None]=None,
                      do_slow_osc: bool=True,
                      do_spindles: bool=True,
                      chans_for_spindles: List[str]=None,
                      chans_for_slow_osc: List[str]=None,
                      epochs_with_artifacts: List[int]=None,
                      do_rem: bool=False,
-                     spindle_algo: str='Wamsley2012'):
+                     spindle_algo: str='Wamsley2012',
+                     timeit=False):
     """
     Run full feature extraction (rem, spindles and SO) on an edf
     :param edf_filepath: path to edf file
     :param epochstages: epochstages list e.g. ['waso', 'waso', 'n1', 'n2', 'n2', etc]
-    :param offset_between_epochstages_and_edf: difference between the start of the epochstages and the edf in seconds
+    :param epochoffset_secs: difference between the start of the epochstages and the edf in seconds
     :param end_offset: end time to stop extraction for (seconds since start of edf)
     :param do_slow_osc: whether to extract slow oscillations or not
     :param do_spindles: whether to extract spindles or not
@@ -45,70 +63,100 @@ def extract_features(edf_filepath: str,
     :return: dataframe of all events, with description, stage, onset (seconds since epochstages start), duration, and feature properties
     """
     features_detected = []
-    start_offset = offset_between_epochstages_and_edf
+    start_offset = epochoffset_secs
 
     chans_for_slow_osc = None if chans_for_slow_osc == 'all' else chans_for_slow_osc
     chans_for_spindles = None if chans_for_spindles == 'all' else chans_for_spindles
 
     if do_spindles:
+        if timeit:
+            starttime = datetime.datetime.now()
+        logger.info('Spindle Extraction starting for ' + edf_filepath)
         data = load_and_slice_data_for_feature_extraction(edf_filepath=edf_filepath,
                                                           epochstages=epochstages,
-                                                          start_offset=start_offset,
+                                                          epochoffset_secs=start_offset,
                                                           bad_segments=epochs_with_artifacts,
                                                           end_offset=end_offset,
                                                           chans_to_consider=chans_for_spindles)
         spindles = detect_spindles(data, start_offset=start_offset, algo=spindle_algo)
         n_spindles = spindles.shape[0]
-        print('Detected', n_spindles, 'spindles')
+        logger.info('Detected '+ str(n_spindles) + ' spindles on ' + edf_filepath)
+        if timeit:
+            logger.info('Spindle extraction took '+str(datetime.datetime.now()-starttime))
+            donetime = datetime.datetime.now()
         spindles = assign_stage_to_feature_events(spindles, epochstages)
-        features_detected.append(spindles)
+        assert all(spindles['stage'].isin(pysleep_defaults.nrem_stages)), "All stages must be nrem. If missmatch maybe epochoffset is incorrect?"
+        if spindles.shape[0]:
+            features_detected.append(spindles)
+        if timeit:
+            logger.info('Bundeling extraction took '+str(datetime.datetime.now()-donetime))
 
     if do_slow_osc:
-        data = load_and_slice_data_for_feature_extraction(edf_filepath=edf_filepath,
-                                                          epochstages=epochstages,
-                                                          start_offset=start_offset,
-                                                          bad_segments=epochs_with_artifacts,
-                                                          end_offset=end_offset,
-                                                          chans_to_consider=chans_for_slow_osc)
+        if timeit:
+            starttime = datetime.datetime.now()
+        logger.info('Slow Osc Extraction starting for '+edf_filepath)
+        if not do_spindles or chans_for_slow_osc != chans_for_spindles:
+            data = load_and_slice_data_for_feature_extraction(edf_filepath=edf_filepath,
+                                                              epochstages=epochstages,
+                                                              epochoffset_secs=start_offset,
+                                                              bad_segments=epochs_with_artifacts,
+                                                              end_offset=end_offset,
+                                                              chans_to_consider=chans_for_slow_osc)
         sos = detect_slow_oscillation(data, start_offset=start_offset)
         n_sos = sos.shape[0]
-        print('Detected',n_sos, 'spindles')
+        logger.info('Detected '+str(n_sos)+ ' slow osc for ' + edf_filepath)
         sos = assign_stage_to_feature_events(sos, epochstages)
-        features_detected.append(sos)
+        assert all(sos['stage'].isin(pysleep_defaults.nrem_stages)), "All stages must be nrem. If missmatch maybe epochoffset is incorrect?"
+        if sos.shape[0]:
+            features_detected.append(sos)
+        if timeit:
+            logger.info('Slow Osc extraction took '+str(datetime.datetime.now()-starttime))
 
     if do_rem:
         if not pysleep_defaults.load_matlab_detectors:
             warnings.warn('Requested REM, but matlab detectors are turned off. Turn on in pysleep defaults.')
+        else:
+            if timeit:
+                starttime = datetime.datetime.now()
+            try:
+                logger.info('REM Extraction starting for '+ edf_filepath)
+                data = load_and_slice_data_for_feature_extraction(edf_filepath=edf_filepath,
+                                                                  epochstages=epochstages,
+                                                                  epochoffset_secs=start_offset,
+                                                                  bad_segments = epochs_with_artifacts,
+                                                                  end_offset=end_offset,
+                                                                  chans_to_consider=['LOC','ROC'],
+                                                                  stages_to_consider=['rem'])
+            except ValueError as e:
+                raise EEGError('LOC and ROC must be present in the record') from e
+            rems = detect_rems(edf_filepath=edf_filepath, data=data, start_time=start_offset)
+            if rems is not None:
+                rems = assign_stage_to_feature_events(rems, epochstages)
+                assert all(rems['stage'] == 'rem'), "All stages for rem must be rem. If missmatch maybe epochoffset is incorrect?"
+                logger.info('Detected '+ str(rems.shape[0]) + ' REMs for ' + edf_filepath)
+                if rems.shape[0]:
+                    features_detected.append(rems)
+                if timeit:
+                    logger.info('REM extraction took'+ str(datetime.datetime.now() - starttime))
 
-        try:
-            data = load_and_slice_data_for_feature_extraction(edf_filepath=edf_filepath,
-                                                              epochstages=epochstages,
-                                                              start_offset=start_offset,
-                                                              bad_segments = epochs_with_artifacts,
-                                                              end_offset=end_offset,
-                                                              chans_to_consider=['LOC','ROC'],
-                                                              stages_to_consider=['rem'])
-        except ValueError as e:
-            raise EEGError('LOC and ROC must be present in the record') from e
-        rems = detect_rems(edf_filepath=edf_filepath, data=data)
-        rems = assign_stage_to_feature_events(rems, epochstages)
-        features_detected.append(rems)
-
-    return pd.concat(features_detected, axis=0, sort=False)
+    if features_detected:
+        return pd.concat(features_detected, axis=0, sort=False)
+    else:
+        return None
 
 
 def load_and_slice_data_for_feature_extraction(edf_filepath: str,
                                                epochstages: List[str],
-                                               bad_segments: List[List[float]]=None,
-                                               start_offset: float = None,
+                                               bad_segments: List[int]=None,
+                                               epochoffset_secs: float = None,
                                                end_offset: float = None,
                                                chans_to_consider: List[str] = None,
                                                epoch_len=pysleep_defaults.epoch_len,
                                                stages_to_consider=pysleep_defaults.nrem_stages):
-    if start_offset is None:
-        start_offset = 0
+    if epochoffset_secs is None:
+        epochoffset_secs = 0
     if end_offset is not None:
-        last_good_epoch = int((end_offset-start_offset)/epoch_len)
+        last_good_epoch = int((end_offset - epochoffset_secs) / epoch_len)
         epochstages = epochstages[0:last_good_epoch]
 
     d = Dataset(edf_filepath)
@@ -117,21 +165,18 @@ def load_and_slice_data_for_feature_extraction(edf_filepath: str,
     if not (1 < np.sum(np.abs(eeg_data))/eeg_data.size < 100):
         raise EEGError("edf data should be in mV, please rescale units in edf file")
 
-    epochstages = pysleep_utils.convert_epochstages_to_eegevents(epochstages, start_offset=start_offset)
+    if bad_segments is not None:
+        for bad_epoch in bad_segments:
+            epochstages[bad_epoch]='artifact'
+    epochstages = pysleep_utils.convert_epochstages_to_eegevents(epochstages, start_offset=epochoffset_secs)
     epochstages_to_consider = epochstages.loc[epochstages['description'].isin(stages_to_consider), :]
     starts = epochstages_to_consider['onset'].tolist()
     ends = (epochstages_to_consider['onset'] + epochstages_to_consider['duration']).tolist()
 
-    if bad_segments is not None:
-        starts = starts + bad_segments[1]
-        sorted(starts)
-        ends = bad_segments[0] + ends
-        sorted(ends)
-
-    for i, (s, e) in enumerate(zip(starts[::-1].copy(), ends[::-1].copy())):
-        if s == e:
+    for i in range(len(starts)-1,0,-1):
+        if starts[i] == ends[i-1]:
             del starts[i]
-            del ends[i]
+            del ends[i-1]
 
     data = d.read_data(begtime=starts, endtime=ends, chan=chans_to_consider)
     data.starts = starts
@@ -156,7 +201,7 @@ def detect_spindles(data: Dataset, algo: str = 'Wamsley2012',
     col_map = {'start': 'onset',
                'end': None,
                'peak_time': 'peak_time',
-               'peak_val_det': 'peak_uV',
+               'peak_val_det': 'peak_uV', #peak in the band of interest (removing DC, and other signal components)
                'peak_val_orig': None,
                'dur': 'duration',
                'auc_det': None,
@@ -198,8 +243,8 @@ def detect_slow_oscillation(data: Dataset, algo: str = 'AASM/Massimini2004', sta
                'trough_time': 'trough_time',
                'zero_time': 'zero_time',
                'peak_time': 'peak_time',
-               'trough_val': 'trough_val',
-               'peak_val': 'peak_val',
+               'trough_val': 'trough_uV',
+               'peak_val': 'peak_uV',
                'dur': 'duration',
                'ptp': None,
                'chan': 'chan'}
@@ -220,7 +265,8 @@ def detect_rems(edf_filepath: str,
                 data: Dataset,
                 loc_chan: str = 'LOC',
                 roc_chan: str = 'ROC',
-                start_time=0,
+                start_time: float=0,
+                std_rem_width: float = 0.1,
                 algo: str='HatzilabrouEtAl'):
     """
     Detect rapid eye movement events in an edf file from loc and roc channels (only REM stage considered). Sample Freq must be converted to 256Hz!
@@ -231,17 +277,26 @@ def detect_rems(edf_filepath: str,
     :param start_offset: offset between first epoch and edf - onset is measured from this
     :return: returns dataframe of spindle locations, with columns for chan, start, duration and other spindle properties, sorted by onscdet
     """
-    if data.header['s_freq'] != 256:
-        raise EEGError("edf should be 256Hz. Please resample.")
-    rem_starts = [d*256 for d in data.starts] #must be in samples, must be 256Hz.
-    rem_ends = [d*256 for d in data.ends]
-    onsets, _, _, _, _ = rem_detector.runDetectorCommandLine(edf_filepath, [rem_starts, rem_ends], algo, loc_chan, roc_chan)
-    rem_df = pd.DataFrame({'onsets': onsets}, dtype=float)
+    # if data.header['s_freq'] != 256:
+    #     raise EEGError("edf should be 256Hz. Please resample.")
+    rem_starts = [int(d*256) for d in data.starts] #must be in samples, must be 256Hz.
+    rem_ends = [int(d*256) for d in data.ends]
+    if len(rem_starts) > 0:
+        with nostdout():
+            onsets = rem_detector.runDetectorCommandLine(edf_filepath, [rem_starts, rem_ends], algo, loc_chan, roc_chan, 0)
+    else:
+        return None
+    if len(onsets) > 0:
+        onsets = onsets[0]
+    else:
+        return None
+    rem_df = pd.DataFrame({'onset': onsets}, dtype=float)
     rem_df['description'] = 'rem_event'
     if start_time is not None:
-        start_time = 0
-    rem_df['onset'] = rem_df['onset'] - start_time
-    rem_df = rem_df.loc[rem_df['onset']>=0,:]
+        rem_df['onset'] = rem_df['onset'] - start_time
+        rem_df = rem_df.loc[rem_df['onset'] >= 0, :]
+    rem_df['duration'] = std_rem_width
+    rem_df['chan'] = 'LOC'
     return rem_df
 
 
@@ -288,7 +343,7 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
     :param feature_events: dataframe of a single event type (spindle, slow osc, rem, etc)
     :param stages_to_consider: The stages to extract for, i.e. you probably want to leave out REM when doing spindles
     :param channels: if None consider all channels THAT HAVE DETECTED SPINDLES, to include 0 density and count for
-        channels that have no spindles, make sure to inlcude this channel list argument.
+        channels that have no spindles, make sure to include this channel list argument.
     :param av_across_channels: whether to average across channels, or return separate for each channel
     :return: dataframe of with len(stage)*len(chan) or len(stage) rows with density + mean of each feature as columns
     """
@@ -326,16 +381,17 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
             if len(per_chan_cont) > 0:
                 features_per_stage = pd.concat(per_chan_cont, axis=1, sort=False).T
                 if av_across_channels:
-                    features_per_stage = features_per_stage.drop('chan', axis=1).agg(np.nanmean)
+                    features_per_stage = features_per_stage.drop('chan', axis=1).apply(
+                        lambda x: pd.to_numeric(x, errors='ignore')).agg(np.nanmean)
                 for idx_idx, idx in enumerate(index_vars):
                     features_per_stage[idx] = stage_and_other_idx[idx_idx]
                 features_per_stage_cont.append(features_per_stage)
     if len(features_per_stage_cont) > 0:
         if av_across_channels:
-            features_df = pd.concat(features_per_stage_cont, axis=1).T
+            features_df = pd.concat(features_per_stage_cont, axis=1, sort=False).T
         else:
-            features_df = pd.concat(features_per_stage_cont, axis=0)
+            features_df = pd.concat(features_per_stage_cont, axis=0, sort=False)
         return features_df
     else:
-        print('No events in given stages')
+        logger.info('No events in given stages')
         return pd.DataFrame() #return empty df

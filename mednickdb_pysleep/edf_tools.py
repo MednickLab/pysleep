@@ -5,6 +5,7 @@ import warnings
 import os
 import pandas as pd
 from typing import Tuple, List, Union
+from mednickdb_pysleep.error_handling import EEGWarning
 
 def write_edf_from_mne_raw_array(mne_raw: mne.io.RawArray, fname: str, ref_type='', annotations=False, new_date=False, picks=None, tmin=0, tmax=None, overwrite=True):
     """
@@ -115,7 +116,7 @@ def rereference(edf: mne.io.RawArray, desired_ref: str, current_ref: str=None, p
         return edf, current_ref
 
     if desired_ref in ['linked_ear'] and 'M1' not in chans or 'M2' not in  chans:
-        warnings.warn('Trying to reference to linked ear, but missing M1 and M2 channels. EEG file will not be re-referenced', ParseWarning)
+        warnings.warn('Trying to reference to linked ear, but missing M1 and M2 channels. EEG file will not be re-referenced', EEGWarning)
         return edf, current_ref
 
 
@@ -183,7 +184,16 @@ def mne_annotations_to_dataframe(annot: mne.Annotations):
     return pd.DataFrame({'onset':annot.onset, 'description': annot.description, 'duration': annot.duration})
 
 
-def mne_annotations_from_dataframe(df, orig_time=None):
-    return mne.Annotations(df['onset'].values.astype(float),
+def mne_annotations_from_dataframe(df, orig_time=0):
+    return mne.Annotations(df['onset'].values.astype(float)+orig_time,
                     df['duration'].values.astype(float),
-                    df['description'].values.astype(str), orig_time=orig_time)
+                    df['description'].values.astype(str))
+
+
+def add_events_df_to_mne_raw(mne_raw: mne.io.RawArray, events_df, orig_time):
+    if mne_raw.annotations:
+        mne_raw.annotations.append(onset=events_df['onset']+orig_time,
+                                   duration=events_df['duration'],
+                                   description=events_df['description'])
+        return mne_raw
+    return mne_raw.set_annotations(mne_annotations_from_dataframe(events_df, orig_time))
