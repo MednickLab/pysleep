@@ -2,7 +2,7 @@ from wonambi import Dataset
 from wonambi.trans import math, timefrequency
 from typing import List, Tuple, Dict, Union
 import numpy as np
-from mednickdb_pysleep import pysleep_defaults, pysleep_utils
+from mednickdb_pysleep import pysleep_defaults, pysleep_utils, error_handling
 import pandas as pd
 import warnings
 
@@ -34,9 +34,10 @@ def extract_band_power(edf_filepath: str,
     """
 
     d = Dataset(edf_filepath)
-    assert epochoffset_secs is None or epochoffset_secs >= 0
-    assert (end_time is None) or (end_time <= d.header['n_samples']/d.header['s_freq']), \
-        "end time ("+ str(end_time) +") larger than record end!"+str(d.header['n_samples']/d.header['s_freq'])
+    if not (epochoffset_secs is None or epochoffset_secs >= 0):
+        raise error_handling.EEGError('Epochoffset is negative!'+str(epochoffset_secs))
+    if not ((end_time is None) or (end_time <= d.header['n_samples']/d.header['s_freq'])):
+        raise error_handling.EEGError("end time ("+ str(end_time) +") larger than record end!"+str(d.header['n_samples']/d.header['s_freq']))
     data = d.read_data(begtime=epochoffset_secs, endtime=end_time, chan=chans_to_consider)
     power = timefrequency(data, method='spectrogram')
     abs_power = math(power, operator_name='abs')

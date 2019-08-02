@@ -4,11 +4,11 @@ sys.path.insert(0, file_dir + '/../mednickdb_pysleep/')
 from sleep_features import detect_spindles, \
     detect_slow_oscillation, assign_stage_to_feature_events, \
     sleep_feature_variables_per_stage, detect_rems, \
-    load_and_slice_data_for_feature_extraction, extract_features
+    load_and_slice_data_for_feature_extraction, extract_features, \
+    detect_slow_osc_spindle_overlap
 from process_sleep_record import extract_eeg_variables
 from sleep_architecture import sleep_stage_architecture
 from pysleep_defaults import load_matlab_detectors
-from mednickdb_pyapi.pyapi import MednickAPI
 import time
 
 import pytest
@@ -17,25 +17,6 @@ import numpy as np
 import pandas as pd
 import yaml
 import os
-
-def test_rem_detection():
-    if load_matlab_detectors and os.name != 'nt':
-        edf = os.path.join(file_dir, 'testfiles/example2_sleep_rec.edf')
-        epochstages_file = file_dir + '/testfiles/example2_epoch_stages.pkl'
-        epochstages = pickle.load(open(epochstages_file, 'rb'))
-        print('Beginning rem detection, this may take sometime')
-        data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
-                                                          epochstages=epochstages,
-                                                          chans_to_consider=['Left Eye-A2','Right Eye-A1'],
-                                                          stages_to_consider=['rem']
-                                                          )
-        rem_locs_df = detect_rems(edf, data, 'Left Eye-A2', 'Right Eye-A1')
-        assert rem_locs_df is not None
-        assert rem_locs_df.shape[0] > 0
-        rem_locs_df = assign_stage_to_feature_events(rem_locs_df, epochstages)
-        assert np.all(rem_locs_df['stage'] == 'rem')
-        pytest.rem_locs_df = rem_locs_df
-
 
 def test_spindle_detection():
     # TODO make a real test case...
@@ -91,6 +72,34 @@ def test_so_detection():
     pytest.slow_oscillations_df = slow_oscillations
 
 
+def test_coupling_detection():
+    features_df = pd.concat([pytest.spindles_df, pytest.slow_oscillations_df], axis=0, sort=False)
+    pytest.features_df = features_df
+    coupling = detect_slow_osc_spindle_overlap(features_df,
+                                               coupling_secs=1.2,
+                                               as_bool=True)
+
+    assert any(coupling['coupled_before']) and any(coupling['coupled_after'])
+
+def test_rem_detection():
+    if load_matlab_detectors and os.name != 'nt':
+        edf = os.path.join(file_dir, 'testfiles/example2_sleep_rec.edf')
+        epochstages_file = file_dir + '/testfiles/example2_epoch_stages.pkl'
+        epochstages = pickle.load(open(epochstages_file, 'rb'))
+        print('Beginning rem detection, this may take sometime')
+        data = load_and_slice_data_for_feature_extraction(edf_filepath=edf,
+                                                          epochstages=epochstages,
+                                                          chans_to_consider=['Left Eye-A2','Right Eye-A1'],
+                                                          stages_to_consider=['rem']
+                                                          )
+        rem_locs_df = detect_rems(edf, data, 'Left Eye-A2', 'Right Eye-A1')
+        assert rem_locs_df is not None
+        assert rem_locs_df.shape[0] > 0
+        rem_locs_df = assign_stage_to_feature_events(rem_locs_df, epochstages)
+        assert np.all(rem_locs_df['stage'] == 'rem')
+        pytest.rem_locs_df = rem_locs_df
+
+
 def test_feature_extraction():
     edf = os.path.join(file_dir, 'testfiles/example1_sleep_rec.edf')
     study_settings = yaml.safe_load(open(os.path.join(file_dir, 'testfiles/example1_study_settings.yaml'), 'rb'))
@@ -107,9 +116,10 @@ def test_feature_extraction():
                                    spindle_algo='Ferrarelli2007')
 
     features_df = features_df.drop(['stage','stage_idx'], axis=1)
-    features_sep = pd.concat([pytest.spindles_df, pytest.slow_oscillations_df], axis=0, sort=False)
 
-    assert np.all(features_sep.fillna(-1).values == features_df.fillna(-1).values)
+    pytest.features_df = pytest.features_df.drop(['coupled_before','coupled_after'], axis=1)
+
+    assert np.all(pytest.features_df.fillna(-1).values == features_df.fillna(-1).values)
 
 
 def test_density_and_mean_features_calculations():

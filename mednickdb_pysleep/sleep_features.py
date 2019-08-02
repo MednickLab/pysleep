@@ -18,6 +18,7 @@ try:
     logger = inspect.currentframe().f_back.f_globals['logger']
 except KeyError:
     logger = logging.getLogger('errorlog')
+    logger.info = print#
 
 class DummyFile(object):
     def write(self, x): pass
@@ -79,17 +80,20 @@ def extract_features(edf_filepath: str,
                                                           end_offset=end_offset,
                                                           chans_to_consider=chans_for_spindles)
         spindles = detect_spindles(data, start_offset=start_offset, algo=spindle_algo)
-        n_spindles = spindles.shape[0]
-        logger.info('Detected '+ str(n_spindles) + ' spindles on ' + edf_filepath)
-        if timeit:
-            logger.info('Spindle extraction took '+str(datetime.datetime.now()-starttime))
-            donetime = datetime.datetime.now()
-        spindles = assign_stage_to_feature_events(spindles, epochstages)
-        assert all(spindles['stage'].isin(pysleep_defaults.nrem_stages)), "All stages must be nrem. If missmatch maybe epochoffset is incorrect?"
-        if spindles.shape[0]:
-            features_detected.append(spindles)
-        if timeit:
-            logger.info('Bundeling extraction took '+str(datetime.datetime.now()-donetime))
+        if spindles is None or spindles.shape[0]==0:
+            logger.warning('No Spindles detected for ' + edf_filepath)
+        else:
+            n_spindles = spindles.shape[0]
+            logger.info('Detected '+ str(n_spindles) + ' spindles on ' + edf_filepath)
+            if timeit:
+                logger.info('Spindle extraction took '+str(datetime.datetime.now()-starttime))
+                donetime = datetime.datetime.now()
+            spindles = assign_stage_to_feature_events(spindles, epochstages)
+            assert all(spindles['stage'].isin(pysleep_defaults.nrem_stages)), "All stages must be nrem. If missmatch maybe epochoffset is incorrect?"
+            if spindles.shape[0]:
+                features_detected.append(spindles)
+            if timeit:
+                logger.info('Bundeling extraction took '+str(datetime.datetime.now()-donetime))
 
     if do_slow_osc:
         if timeit:
@@ -103,14 +107,17 @@ def extract_features(edf_filepath: str,
                                                               end_offset=end_offset,
                                                               chans_to_consider=chans_for_slow_osc)
         sos = detect_slow_oscillation(data, start_offset=start_offset)
-        n_sos = sos.shape[0]
-        logger.info('Detected '+str(n_sos)+ ' slow osc for ' + edf_filepath)
-        sos = assign_stage_to_feature_events(sos, epochstages)
-        assert all(sos['stage'].isin(pysleep_defaults.nrem_stages)), "All stages must be nrem. If missmatch maybe epochoffset is incorrect?"
-        if sos.shape[0]:
-            features_detected.append(sos)
-        if timeit:
-            logger.info('Slow Osc extraction took '+str(datetime.datetime.now()-starttime))
+        if sos is None:
+            logger.warning('No SO detected for ' + edf_filepath)
+        else:
+            n_sos = sos.shape[0]
+            logger.info('Detected '+str(n_sos)+ ' slow osc for ' + edf_filepath)
+            sos = assign_stage_to_feature_events(sos, epochstages)
+            assert all(sos['stage'].isin(pysleep_defaults.nrem_stages)), "All stages must be nrem. If missmatch maybe epochoffset is incorrect?"
+            if sos.shape[0]:
+                features_detected.append(sos)
+            if timeit:
+                logger.info('Slow Osc extraction took '+str(datetime.datetime.now()-starttime))
 
     if do_rem:
         if not pysleep_defaults.load_matlab_detectors:
@@ -130,7 +137,9 @@ def extract_features(edf_filepath: str,
             except ValueError as e:
                 raise EEGError('LOC and ROC must be present in the record') from e
             rems = detect_rems(edf_filepath=edf_filepath, data=data, start_time=start_offset)
-            if rems is not None:
+            if rems is None:
+                logger.warning('No REM detected for ' + edf_filepath)
+            else:
                 rems = assign_stage_to_feature_events(rems, epochstages)
                 assert all(rems['stage'] == 'rem'), "All stages for rem must be rem. If missmatch maybe epochoffset is incorrect?"
                 logger.info('Detected '+ str(rems.shape[0]) + ' REMs for ' + edf_filepath)
@@ -162,7 +171,7 @@ def load_and_slice_data_for_feature_extraction(edf_filepath: str,
     d = Dataset(edf_filepath)
 
     eeg_data = d.read_data().data[0]
-    if not (1 < np.sum(np.abs(eeg_data))/eeg_data.size < 100):
+    if not (1 < np.sum(np.abs(eeg_data))/eeg_data.size < 200):
         raise EEGError("edf data should be in mV, please rescale units in edf file")
 
     if bad_segments is not None:
@@ -216,16 +225,17 @@ def detect_spindles(data: Dataset, algo: str = 'Wamsley2012',
     cols_to_keep = set(spindles_df.columns) - set([k for k, v in col_map.items() if v is None])
     spindles_df = spindles_df.loc[:, cols_to_keep]
     spindles_df.columns = [col_map[k] for k in spindles_df.columns]
+    if spindles_df.shape[0] == 0:
+        return None #empty df
     spindles_df['peak_time'] = spindles_df['peak_time'] - spindles_df['onset']
     spindles_df['description'] = 'spindle'
     if start_offset is not None:
         spindles_df['onset'] = spindles_df['onset'] - start_offset
         spindles_df = spindles_df.loc[spindles_df['onset'] >= 0, :]
-    spindles_df = spindles_df.loc[(spindles_df['freq_peak'] > 11) & (spindles_df['freq_peak'] < 16),:]
     return spindles_df.sort_values('onset')
 
 
-def detect_slow_oscillation(data: Dataset, algo: str = 'AASM/Massimini2004', start_offset: float = None) ->pd.DataFrame:
+def detect_slow_oscillation(data: Dataset, algo: str = 'AASM/Massimini2004', start_offset: float = None) -> pd.DataFrame:
     """
     Detect slow waves (slow oscillations) locations in an edf file for each channel
     :param edf_filepath: path of edf file to load. Will maybe work with other filetypes. untested.
@@ -251,6 +261,8 @@ def detect_slow_oscillation(data: Dataset, algo: str = 'AASM/Massimini2004', sta
     cols_to_keep = set(sos_df.columns) - set([k for k, v in col_map.items() if v is None])
     sos_df = sos_df.loc[:, cols_to_keep]
     sos_df.columns = [col_map[k] for k in sos_df.columns]
+    if sos_df.shape[0] == 0:
+        return None #empty df
     sos_df['peak_time'] = sos_df['peak_time'] - sos_df['onset']
     sos_df['trough_time'] = sos_df['trough_time'] - sos_df['onset']
     sos_df['zero_time'] = sos_df['zero_time'] - sos_df['onset']
@@ -286,6 +298,9 @@ def detect_rems(edf_filepath: str,
             onsets = rem_detector.runDetectorCommandLine(edf_filepath, [rem_starts, rem_ends], algo, loc_chan, roc_chan, 0)
     else:
         return None
+    if isinstance(onsets, float): #one rem?
+        warnings.warn('Only a single rem was found, this may be an error')
+        pass
     if len(onsets) > 0:
         onsets = onsets[0]
     else:
@@ -313,6 +328,7 @@ def assign_stage_to_feature_events(feature_events: pd.DataFrame,
     :return: the modified events df, with a stage column
     """
     feature_events['onset'] -= epoch_stage_offset
+
     if isinstance(epochstages, list):
         stage_events = pd.DataFrame({'onset':np.arange(0, len(epochstages))*epoch_len,
                                      'stage_idx':np.arange(0, len(epochstages)),
@@ -321,17 +337,65 @@ def assign_stage_to_feature_events(feature_events: pd.DataFrame,
     else:
         raise ValueError('epochstages is of unknown type. Should be list.')
 
-    def check_overlap(start, duration, events):
-        end = start + duration
-        for idx, stage in events.iterrows():
-            if pysleep_utils.overlap(start, end, stage['onset'], stage['onset']+stage['duration']):
-                return stage.loc[['stage', 'stage_idx']]
-        return pd.Series({'stage':pysleep_defaults.unknown_stage, 'stage_idx':-1})
+    labels = [(s,i) for s,i in zip(stage_events['stage'], stage_events['stage_idx'])]
+    end_point = stage_events['onset'].iloc[-1] + stage_events['duration'].iloc[-1]
+    stages = pd.DataFrame(pd.cut(feature_events['onset'],
+                                 stage_events['onset'].to_list()+[end_point],
+                                 right=False,
+                                 labels=labels).to_list(),
+                          columns=['stage','stage_idx'])
 
-    stage_events_to_cat = feature_events.apply(lambda x: check_overlap(x['onset'], x['duration'], stage_events), axis=1)
-    feature_events = pd.concat([feature_events, stage_events_to_cat], axis=1, sort=False)
+    feature_events = pd.concat([feature_events.reset_index(drop=True), stages.reset_index(drop=True)], axis=1)
+
     return feature_events
 
+
+def detect_slow_osc_spindle_overlap(features_df, coupling_secs=None, as_bool=False) -> pd.DataFrame:
+    """
+    Detect if a set of features (i.e. spindles) are close (with coupling_secs) to a set of base features (i.e. Slow Osc)
+    :param base_onsets: the onsets of features to search around (Slow Osc)
+    :param candidate_onsets:
+    :param offset_secs:
+    :return: closest infront of onset, closest behind onset, Nan if nothing within "coupling secs"
+    """
+    if as_bool:
+        assert coupling_secs is not None, 'if you want a yes no returned for coupling, then there must be a couping secs'
+
+    SO_df = features_df.loc[features_df['description'] == 'slow_osc', :]
+    spindle_df = features_df.loc[features_df['description'] == 'spindle', :]
+
+    def overlap_func(base, spindle_onsets, coupling_secs=None, as_bool=False):
+        if spindle_onsets.shape[0] == 0:
+            return pd.DataFrame([np.nan, np.nan], columns=['closest_before', 'closest_after'])
+        spindle_diff = spindle_onsets - base
+        closest_before = spindle_diff[spindle_diff<0].iloc[-1] if spindle_diff[spindle_diff<0].shape[0]!=0 else np.nan
+        closest_after = spindle_diff[spindle_diff>0].iloc[0] if spindle_diff[spindle_diff>0].shape[0]!=0 else np.nan
+        if coupling_secs:
+            if abs(closest_before) < coupling_secs:
+                if as_bool:
+                    closest_before = True
+            else:
+                closest_before = np.nan
+                if as_bool:
+                    closest_before = False
+
+            if closest_after < coupling_secs:
+                if as_bool:
+                    closest_after = True
+            else:
+                closest_after = np.nan
+                if as_bool:
+                    closest_after = False
+        return pd.Series({'before':closest_before, 'after':closest_after})
+
+    for chan, chan_data in SO_df.groupby('chan'):
+        overlap = chan_data.apply(lambda x: overlap_func(x['onset']+x['zero_time'],
+                                                         spindle_df.loc[spindle_df['chan']==x['chan'],'onset'],
+                                                         coupling_secs,
+                                                         as_bool), axis=1)
+        features_df.loc[(features_df['description'] == 'slow_osc') & (features_df['chan'] == chan), 'coupled_before'] = overlap['before']
+        features_df.loc[(features_df['description'] == 'slow_osc') & (features_df['chan'] == chan), 'coupled_after'] = overlap['after']
+    return features_df
 
 def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
                                       mins_in_stage_df: pd.DataFrame=None,
@@ -347,6 +411,8 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
     :param av_across_channels: whether to average across channels, or return separate for each channel
     :return: dataframe of with len(stage)*len(chan) or len(stage) rows with density + mean of each feature as columns
     """
+    if 'stage_idx' in feature_events.columns:
+        feature_events = feature_events.drop('stage_idx', axis=1)
     if 'quartile' in feature_events.columns:
         by_quart = True
         index_vars = ['stage','description', 'quartile']
