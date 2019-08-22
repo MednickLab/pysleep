@@ -149,11 +149,12 @@ def test_density_and_mean_features_calculations():
     assert set(features_per_chan['stage'].unique()) == set(stages)
 
     # test if density is 0 for channels that dont have spindles
+    channels_before = channels
     channels = np.append(channels, 'F9').tolist()
     features_per_chan = sleep_feature_variables_per_stage(spindle_events,
                                                           av_across_channels=False,
                                                           mins_in_stage_df=mins_df,
                                                           stages_to_consider=stages,
                                                           channels=channels)
-    assert set(features_per_chan['chan'].unique()) == set(channels)
+    assert set(features_per_chan['chan'].unique()) == set(channels_before)
     assert all(0 == features_per_chan.loc[features_per_chan['chan'] == 'F9', 'count'])
