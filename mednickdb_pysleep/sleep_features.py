@@ -30,12 +30,15 @@ def nostdout():
     yield
     sys.stdout = save_stdout
 
-print(os.environ)
 if 'skip_rem' not in os.environ:
     if pysleep_defaults.load_matlab_detectors:
-        import yetton_rem_detector
-        yetton_rem_detector.initialize_runtime(['-nojvm', '-nodisplay'])
-        rem_detector = yetton_rem_detector.initialize()
+        try:
+            import yetton_rem_detector
+            yetton_rem_detector.initialize_runtime(['-nojvm', '-nodisplay'])
+            rem_detector = yetton_rem_detector.initialize()
+        except ModuleNotFoundError:
+            pysleep_defaults.load_matlab_detectors = False
+
 
 def extract_features(edf_filepath: str,
                      epochstages: List[str],
