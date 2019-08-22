@@ -30,6 +30,7 @@ def nostdout():
     yield
     sys.stdout = save_stdout
 
+print(os.environ)
 if 'skip_rem' not in os.environ:
     if pysleep_defaults.load_matlab_detectors:
         import yetton_rem_detector
