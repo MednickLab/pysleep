@@ -40,5 +40,6 @@ include_self_transitions = False
 # %% Turn or of off matlab detector functionality
 load_matlab_detectors = os.name != 'nt'
 
-
+# %% SO spindle overlap
+so_spindle_overlap = 1.2
 # Quartile ->

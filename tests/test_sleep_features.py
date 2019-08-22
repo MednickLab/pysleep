@@ -115,7 +115,7 @@ def test_feature_extraction():
                                    chans_for_slow_osc=chans_to_consider,
                                    spindle_algo='Ferrarelli2007')
 
-    features_df = features_df.drop(['stage','stage_idx'], axis=1)
+    features_df = features_df.drop(['stage','stage_idx','coupled_before','coupled_after'], axis=1)
 
     pytest.features_df = pytest.features_df.drop(['coupled_before','coupled_after'], axis=1)
 
@@ -143,8 +143,8 @@ def test_density_and_mean_features_calculations():
                                                  av_across_channels=False,
                                                  mins_in_stage_df=mins_df,
                                                  stages_to_consider=stages)
-    chan_stage_missing_spindles = 1
-    assert features_per_chan.shape[0] == len(stages)*len(channels)-chan_stage_missing_spindles
+
+    assert features_per_chan.shape[0] == len(stages)*len(channels)
     assert set(features_per_chan['chan'].unique()) == set(channels)
     assert set(features_per_chan['stage'].unique()) == set(stages)
 

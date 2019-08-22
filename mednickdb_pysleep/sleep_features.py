@@ -113,6 +113,7 @@ def extract_features(edf_filepath: str,
             n_sos = sos.shape[0]
             logger.info('Detected '+str(n_sos)+ ' slow osc for ' + edf_filepath)
             sos = assign_stage_to_feature_events(sos, epochstages)
+
             assert all(sos['stage'].isin(pysleep_defaults.nrem_stages)), "All stages must be nrem. If missmatch maybe epochoffset is incorrect?"
             if sos.shape[0]:
                 features_detected.append(sos)
@@ -134,9 +135,11 @@ def extract_features(edf_filepath: str,
                                                                   end_offset=end_offset,
                                                                   chans_to_consider=['LOC','ROC'],
                                                                   stages_to_consider=['rem'])
-            except ValueError as e:
-                raise EEGError('LOC and ROC must be present in the record') from e
-            rems = detect_rems(edf_filepath=edf_filepath, data=data, start_time=start_offset)
+            except ValueError:
+                warnings.warn('LOC and ROC must be present in the record. Cannot do REM')
+                rems = None
+            else:
+                rems = detect_rems(edf_filepath=edf_filepath, data=data, start_time=start_offset)
             if rems is None:
                 logger.warning('No REM detected for ' + edf_filepath)
             else:
@@ -149,7 +152,12 @@ def extract_features(edf_filepath: str,
                     logger.info('REM extraction took'+ str(datetime.datetime.now() - starttime))
 
     if features_detected:
-        return pd.concat(features_detected, axis=0, sort=False)
+        sleep_features_df = pd.concat(features_detected, axis=0, sort=False)
+        if do_spindles and do_slow_osc:
+            sleep_features_df = detect_slow_osc_spindle_overlap(sleep_features_df,
+                                            coupling_secs=pysleep_defaults.so_spindle_overlap,
+                                            as_bool=True)
+        return sleep_features_df
     else:
         return None
 
@@ -366,7 +374,7 @@ def detect_slow_osc_spindle_overlap(features_df, coupling_secs=None, as_bool=Fal
 
     def overlap_func(base, spindle_onsets, coupling_secs=None, as_bool=False):
         if spindle_onsets.shape[0] == 0:
-            return pd.DataFrame([np.nan, np.nan], columns=['closest_before', 'closest_after'])
+            return pd.Series({'before':np.nan, 'after':np.nan})
         spindle_diff = spindle_onsets - base
         closest_before = spindle_diff[spindle_diff<0].iloc[-1] if spindle_diff[spindle_diff<0].shape[0]!=0 else np.nan
         closest_after = spindle_diff[spindle_diff>0].iloc[0] if spindle_diff[spindle_diff>0].shape[0]!=0 else np.nan
@@ -397,8 +405,8 @@ def detect_slow_osc_spindle_overlap(features_df, coupling_secs=None, as_bool=Fal
         features_df.loc[(features_df['description'] == 'slow_osc') & (features_df['chan'] == chan), 'coupled_after'] = overlap['after']
     return features_df
 
-def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
-                                      mins_in_stage_df: pd.DataFrame=None,
+def sleep_feature_variables_per_stage_old(feature_events: pd.DataFrame,
+                                         mins_in_stage_df: pd.DataFrame=None,
                                       stages_to_consider: List[str]=pysleep_defaults.stages_to_consider,
                                       channels: List[str]=None,
                                       av_across_channels: bool=True):
@@ -461,3 +469,59 @@ def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
     else:
         logger.info('No events in given stages')
         return pd.DataFrame() #return empty df
+
+
+def sleep_feature_variables_per_stage(feature_events: pd.DataFrame,
+                                      mins_in_stage_df: pd.DataFrame=None,
+                                      stages_to_consider: List[str]=pysleep_defaults.stages_to_consider,
+                                      channels: List[str]=None,
+                                      av_across_channels: bool=True):
+    """
+    Calculate the density, and mean of other important sleep feature variables (amp, power, peak freq, etc)
+    :param feature_events: dataframe of a single event type (spindle, slow osc, rem, etc)
+    :param stages_to_consider: The stages to extract for, i.e. you probably want to leave out REM when doing spindles
+    :param channels: if None consider all channels THAT HAVE DETECTED SPINDLES, to include 0 density and count for
+        channels that have no spindles, make sure to include this channel list argument.
+    :param av_across_channels: whether to average across channels, or return separate for each channel
+    :return: dataframe of with len(stage)*len(chan) or len(stage) rows with density + mean of each feature as columns
+    """
+    cont = []
+    for feature_name, a_feature_event in feature_events.groupby('description'):
+        to_drop = [col for col in a_feature_event.columns if col in ['stage_idx','onset']]
+        a_feature_event = a_feature_event.drop(to_drop, axis=1)
+        if stages_to_consider is not None:
+            a_feature_event = a_feature_event.loc[a_feature_event['stage'].isin(stages_to_consider),:]
+        if channels is not None:
+            a_feature_event = a_feature_event.loc[a_feature_event['chan'].isin(channels),:]
+
+        index_vars = ['chan', 'stage','description', 'quartile']
+        if av_across_channels:
+            index_vars.remove('chan')
+        if 'quartile' not in a_feature_event.columns:
+            index_vars.remove('quartile')
+            mins_idx_vars = [index_vars.index('stage')]
+        else:
+            mins_idx_vars = [index_vars.index('stage'), index_vars.index('quartile')]
+
+        var_values = {}
+        for var in index_vars:
+            values = a_feature_event[var].unique()
+            var_values[var] = values
+
+        data_cols = [col for col in a_feature_event.columns if col not in index_vars]
+        if av_across_channels:
+            data_cols.remove('chan')
+        multi_idx = pd.MultiIndex.from_product(var_values.values(), names=var_values.keys())
+        features_df = pd.DataFrame(index=multi_idx, columns=data_cols)
+        features_df['count'] = 0
+        features_df['density'] = 0
+        for idxs, feature_data in a_feature_event.groupby(index_vars):
+            mins_idx = [idxs[i] for i in mins_idx_vars]
+            mins_in_stage = mins_in_stage_df.loc[mins_idx, 'minutes_in_stage'][0]
+            features_df.loc[idxs, 'density'] = feature_data.shape[0] / mins_in_stage
+            features_df.loc[idxs, 'count'] = feature_data.shape[0]
+            agg_data = feature_data.agg(np.nanmean)
+            features_df.loc[idxs, agg_data.index] = agg_data.values
+        features_df = features_df.rename({col:'av_'+col for col in features_df.columns if col in data_cols})
+        cont.append(features_df.reset_index())
+    return pd.concat(cont, axis=0)
