@@ -82,7 +82,7 @@ def test_coupling_detection():
     assert any(coupling['coupled_before']) and any(coupling['coupled_after'])
 
 def test_rem_detection():
-    if load_matlab_detectors and os.name != 'nt':
+    if load_matlab_detectors and os.name != 'nt' and ('yetton_rem_detector' in sys.modules):
         edf = os.path.join(file_dir, 'testfiles/example2_sleep_rec.edf')
         epochstages_file = file_dir + '/testfiles/example2_epoch_stages.pkl'
         epochstages = pickle.load(open(epochstages_file, 'rb'))
