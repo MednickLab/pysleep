@@ -31,3 +31,7 @@ pipelines:
           - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
           - docker push $IMAGE_NAME
           - else echo "No dockerhub update in this repository" ; fi
+definitions:
+  services:
+    docker:
+      memory: 2048 
