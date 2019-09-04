@@ -51,6 +51,7 @@ def extract_features(edf_filepath: str,
                      epochs_with_artifacts: List[int]=None,
                      do_rem: bool=False,
                      spindle_algo: str='Wamsley2012',
+                     do_overlap=True,
                      timeit=False):
     """
     Run full feature extraction (rem, spindles and SO) on an edf
@@ -157,7 +158,7 @@ def extract_features(edf_filepath: str,
 
     if features_detected:
         sleep_features_df = pd.concat(features_detected, axis=0, sort=False)
-        if do_spindles and do_slow_osc:
+        if do_spindles and do_slow_osc and do_overlap:
             sleep_features_df = detect_slow_osc_spindle_overlap(sleep_features_df,
                                             coupling_secs=pysleep_defaults.so_spindle_overlap,
                                             as_bool=True)

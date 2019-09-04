@@ -20,6 +20,7 @@ def extract_eeg_variables(edf_filepath,
                           do_slow_osc=True,
                           do_rem=False,
                           do_band_power=True,
+                          do_overlap=True,
                           artifacting_channels=None,
                           spindle_channels=None,
                           slow_osc_channels=None,
@@ -117,6 +118,7 @@ def extract_eeg_variables(edf_filepath,
                                                       do_rem=do_rem,
                                                       do_spindles=do_spindles,
                                                       do_slow_osc=do_slow_osc,
+                                                      do_overlap=do_overlap,
                                                       timeit=timeit)
 
         if features_df is not None:
