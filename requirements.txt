@@ -2,7 +2,7 @@
 numpy==1.16.4
 pandas==0.24.2
 pytest==4.6.3
-PyYAML==5.1.1
+PyYAML==5.4
 scipy==1.2.1
 wonambi==6.01
 xlrd==1.2.0
